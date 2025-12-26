@@ -45,7 +45,10 @@ Deliver a working CLI tool that enumerates all ChatGPT Projects via browser auto
 
 ## Technical Decisions
 
-*To be determined during planning*
+See Architecture Decision Records:
+- [ADR-001: Use Playwright for Browser Automation](../../doc/decisions/001-use-playwright-for-browser-automation.md)
+- [ADR-002: Layered Architecture with Separation of Concerns](../../doc/decisions/002-layered-architecture-with-separation-of-concerns.md)
+- [ADR-003: JSON Lines Format for Output Storage](../../doc/decisions/003-json-lines-format-for-output-storage.md)
 
 ## Progress Log
 
