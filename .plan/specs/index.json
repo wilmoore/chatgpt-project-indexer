@@ -1,0 +1,16 @@
+{
+  "lastSequence": 1,
+  "specs": [
+    {
+      "id": "spec-001",
+      "title": "ChatGPT Project Indexer",
+      "filename": "spec-001-chatgpt-project-indexer.md",
+      "source": "clipboard",
+      "importedAt": "2025-12-25T00:00:00.000Z",
+      "extractedItems": {
+        "epics": 8,
+        "stories": 12
+      }
+    }
+  ]
+}
