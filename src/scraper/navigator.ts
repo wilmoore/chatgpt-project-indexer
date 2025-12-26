@@ -90,10 +90,41 @@ export async function expandSeeMore(
 }
 
 /**
- * Gets the scrollable container for the projects list
+ * Gets the scrollable container for the projects list.
+ * Falls back to sidebar if no specific container found.
  */
 export async function getProjectsContainer(page: Page): Promise<Locator> {
-  return findElement(page, SELECTORS.projectsContainer, 'projects container');
+  // First try specific container selectors
+  for (const selector of SELECTORS.projectsContainer) {
+    try {
+      const locator = page.locator(selector).first();
+      await locator.waitFor({
+        state: 'visible',
+        timeout: 2000,
+      });
+      return locator;
+    } catch {
+      // Try next
+    }
+  }
+
+  // Fall back to finding the parent of project items
+  for (const selector of SELECTORS.projectItem) {
+    try {
+      const items = page.locator(selector);
+      const count = await items.count();
+      if (count > 0) {
+        // Return the sidebar as the scroll container
+        const sidebar = await findElement(page, SELECTORS.sidebar, 'sidebar');
+        return sidebar;
+      }
+    } catch {
+      // Try next
+    }
+  }
+
+  // Last resort: use sidebar as container
+  return findElement(page, SELECTORS.sidebar, 'sidebar as fallback container');
 }
 
 /**
@@ -116,7 +147,7 @@ export async function navigateToProjectsMenu(
   // Expand "See more" if available
   await expandSeeMore(page, onProgress);
 
-  // Get the scrollable container
+  // Get the scrollable container (or sidebar as fallback)
   const container = await getProjectsContainer(page);
   onProgress('Projects menu ready for enumeration');
 

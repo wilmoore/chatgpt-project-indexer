@@ -43,7 +43,10 @@ export async function runEnumeration(
     onProgress('Navigating to ChatGPT...');
     await navigateToChatGPT(page);
 
-    // Ensure authenticated
+    // Wait for page to stabilize
+    await page.waitForTimeout(2000);
+
+    // Ensure authenticated (will wait for login if needed)
     await ensureAuthenticated(page, onProgress);
 
     // Navigate to Projects menu

@@ -84,12 +84,13 @@ export const SELECTORS = {
     '.projects-container',
   ],
 
-  /** Individual project item */
+  /** Individual project item - look for GPT/project links */
   projectItem: [
-    '[data-testid="project-item"]',
-    '[data-testid="gpt-item"]',
     'a[href*="/g/"]',
+    'a[href*="/gpts/"]',
     'a[href*="/project/"]',
+    '[data-testid="gpt-item"]',
+    '[data-testid="project-item"]',
   ],
 
   /** Tooltip element */
@@ -103,7 +104,12 @@ export const SELECTORS = {
   loginIndicators: [
     'text="Log in"',
     'text="Sign up"',
+    'text="Welcome back"',
+    'text="Get started"',
     '[data-testid="login-button"]',
+    'button:has-text("Log in")',
+    'button:has-text("Sign up")',
+    'a:has-text("Log in")',
   ],
 } as const;
 

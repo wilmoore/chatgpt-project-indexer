@@ -56,15 +56,15 @@ export async function ensureAuthenticated(
 
   switch (authState) {
     case AuthState.AUTHENTICATED:
+      onProgress('Authentication verified');
       return true;
 
     case AuthState.LOGIN_REQUIRED:
     case AuthState.SESSION_EXPIRED:
-      await recoverFromAuthExpiration(page, onProgress);
-      return true;
-
     case AuthState.UNKNOWN:
-      onProgress('Warning: Could not determine auth state, proceeding anyway');
+      // For first run or unknown state, prompt for login
+      onProgress('Login required. Please log in to ChatGPT in the browser window.');
+      await recoverFromAuthExpiration(page, onProgress);
       return true;
 
     default:
