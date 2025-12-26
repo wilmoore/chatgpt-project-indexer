@@ -1,0 +1,13 @@
+{
+  "lastSequence": 3,
+  "entries": [
+    {
+      "branch": "feat/mvp-chatgpt-project-indexer",
+      "adrs": [
+        "001-use-playwright-for-browser-automation.md",
+        "002-layered-architecture-with-separation-of-concerns.md",
+        "003-json-lines-format-for-output-storage.md"
+      ]
+    }
+  ]
+}
