@@ -1,9 +1,9 @@
-import { BrowserContext, Page } from 'playwright';
+import { BrowserContext, Page, Locator } from 'playwright';
 import { launchBrowser, navigateToChatGPT, closeBrowser } from '../browser/manager.js';
 import { ensureAuthenticated } from '../auth/recovery.js';
-import { navigateToProjectsMenu } from './navigator.js';
-import { scrollUntilExhausted } from './scroller.js';
-import { extractAllProjects } from './extractor.js';
+import { waitForSidebar, openSeeMorePopup } from './navigator.js';
+import { scrollPopupUntilExhausted, scrollUntilExhausted } from './scroller.js';
+import { extractAllProjects, extractProjectsFromPopup } from './extractor.js';
 import { ProjectWriter } from '../storage/writer.js';
 import { ProgressCallback, RunOptions } from '../types/index.js';
 
@@ -49,19 +49,45 @@ export async function runEnumeration(
     // Ensure authenticated (will wait for login if needed)
     await ensureAuthenticated(page, onProgress);
 
-    // Navigate to Projects menu
-    const container = await navigateToProjectsMenu(page, onProgress);
+    // Wait for sidebar
+    onProgress('Waiting for sidebar...');
+    const sidebar = await waitForSidebar(page);
+    onProgress('Sidebar loaded');
 
-    // Scroll to load all projects
-    const totalProjects = await scrollUntilExhausted(page, container, onProgress);
+    // Open the "See more" popup for Projects
+    const popup = await openSeeMorePopup(page, onProgress);
 
-    // Extract project data
-    const { extracted, failed } = await extractAllProjects(
-      page,
-      container,
-      (project) => writer.addProject(project),
-      onProgress
-    );
+    let totalProjects = 0;
+    let extracted = 0;
+    let failed = 0;
+
+    if (popup) {
+      // Use popup-based extraction with infinite scroll
+      totalProjects = await scrollPopupUntilExhausted(page, popup, onProgress);
+
+      // Extract from popup (cursor must stay inside)
+      const result = await extractProjectsFromPopup(
+        page,
+        popup,
+        (project) => writer.addProject(project),
+        onProgress
+      );
+      extracted = result.extracted;
+      failed = result.failed;
+    } else {
+      // Fallback: extract from sidebar directly
+      onProgress('Falling back to sidebar extraction...');
+      totalProjects = await scrollUntilExhausted(page, sidebar, onProgress);
+
+      const result = await extractAllProjects(
+        page,
+        sidebar,
+        (project) => writer.addProject(project),
+        onProgress
+      );
+      extracted = result.extracted;
+      failed = result.failed;
+    }
 
     // Final flush
     await writer.close();

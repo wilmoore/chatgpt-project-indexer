@@ -26,15 +26,15 @@ export const CONFIG = {
   /** Delays between actions in milliseconds */
   DELAYS: {
     BETWEEN_HOVERS: 100,
-    AFTER_SCROLL: 800,
+    AFTER_SCROLL: 1000, // Increased for lazy loading
     MENU_ANIMATION: 500,
   },
 
   /** Scroll configuration */
   SCROLL: {
-    DELTA_Y: 300,
+    DELTA_Y: 400, // Larger scroll increment
     /** Number of stable iterations to consider scroll exhausted */
-    STABILITY_THRESHOLD: 3,
+    STABILITY_THRESHOLD: 5, // More iterations before declaring done
   },
 
   /** Storage configuration */
@@ -84,13 +84,10 @@ export const SELECTORS = {
     '.projects-container',
   ],
 
-  /** Individual project item - look for GPT/project links */
+  /** Individual project item - Projects have /g/g-p-{id}/project URLs */
   projectItem: [
-    'a[href*="/g/"]',
-    'a[href*="/gpts/"]',
-    'a[href*="/project/"]',
-    '[data-testid="gpt-item"]',
-    '[data-testid="project-item"]',
+    'a[href$="/project"]',
+    'a[href*="g-p-"][href*="/project"]',
   ],
 
   /** Tooltip element */
