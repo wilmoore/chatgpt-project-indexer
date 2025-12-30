@@ -41,6 +41,20 @@ export const CONFIG = {
   STORAGE: {
     /** Interval between flushes to disk */
     FLUSH_INTERVAL: 5_000,
+    /** Number of completed runs to keep (for cleanup) */
+    KEEP_RUNS: 3,
+  },
+
+  /** Supabase configuration */
+  SUPABASE: {
+    /** Supabase project URL (from env or default to local) */
+    URL: process.env.SUPABASE_URL ?? 'http://127.0.0.1:54321',
+    /** Supabase anon/publishable key (from env or default to local) */
+    ANON_KEY: process.env.SUPABASE_ANON_KEY ?? 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0',
+    /** Table name for projects */
+    TABLE_NAME: 'projects',
+    /** Table name for runs */
+    RUNS_TABLE: 'runs',
   },
 
   /** Browser viewport dimensions */

@@ -1,11 +1,18 @@
-import { BrowserContext, Page, Locator } from 'playwright';
+import type { BrowserContext } from 'playwright';
 import { launchBrowser, navigateToChatGPT, closeBrowser } from '../browser/manager.js';
 import { ensureAuthenticated } from '../auth/recovery.js';
 import { waitForSidebar, openSeeMorePopup } from './navigator.js';
 import { scrollPopupUntilExhausted, scrollUntilExhausted } from './scroller.js';
 import { extractAllProjects, extractProjectsFromPopup } from './extractor.js';
-import { ProjectWriter } from '../storage/writer.js';
-import { ProgressCallback, RunOptions } from '../types/index.js';
+import {
+  createStorageBackends,
+  initializeBackends,
+  startRun,
+  completeRun,
+  failRun,
+  closeBackends,
+} from '../storage/index.js';
+import type { ProgressCallback, RunOptions, ProjectRecord } from '../types/index.js';
 
 export interface EnumerationResult {
   totalProjects: number;
@@ -22,15 +29,25 @@ export async function runEnumeration(
   onProgress: ProgressCallback
 ): Promise<EnumerationResult> {
   let context: BrowserContext | null = null;
-  const writer = new ProjectWriter(options.output);
+  const backends = createStorageBackends(options.output);
+
+  // Helper to add project to all backends
+  const addProjectToAll = (project: ProjectRecord): void => {
+    for (const backend of backends) {
+      backend.addProject(project);
+    }
+  };
 
   try {
-    // Initialize storage
-    await writer.initialize();
-    const existingCount = writer.getCount();
+    // Initialize all storage backends
+    await initializeBackends(backends);
+    const existingCount = backends[0]?.getCount() ?? 0;
     if (existingCount > 0) {
       onProgress(`Loaded ${existingCount} existing projects from storage`);
     }
+
+    // Start a new enumeration run (for backends that support it)
+    await startRun(backends);
 
     // Launch browser
     const { context: browserContext, page } = await launchBrowser({
@@ -69,7 +86,7 @@ export async function runEnumeration(
       const result = await extractProjectsFromPopup(
         page,
         popup,
-        (project) => writer.addProject(project),
+        addProjectToAll,
         onProgress
       );
       extracted = result.extracted;
@@ -82,15 +99,18 @@ export async function runEnumeration(
       const result = await extractAllProjects(
         page,
         sidebar,
-        (project) => writer.addProject(project),
+        addProjectToAll,
         onProgress
       );
       extracted = result.extracted;
       failed = result.failed;
     }
 
-    // Final flush
-    await writer.close();
+    // Complete the run (triggers cleanup of old runs)
+    await completeRun(backends, { found: totalProjects, extracted });
+
+    // Final flush to all backends
+    await closeBackends(backends);
 
     const result: EnumerationResult = {
       totalProjects,
@@ -106,6 +126,10 @@ export async function runEnumeration(
     onProgress(`Output saved to: ${result.outputPath}`);
 
     return result;
+  } catch (error) {
+    // Mark run as failed if an error occurs
+    await failRun(backends);
+    throw error;
   } finally {
     // Cleanup
     if (context) {

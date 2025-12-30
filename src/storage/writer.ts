@@ -9,6 +9,8 @@ import { createEmptyStorage, isValidStorageFile } from './schema.js';
  * Buffers writes and flushes periodically for efficiency.
  */
 export class ProjectWriter {
+  readonly name = 'Local JSON';
+
   private buffer: Map<string, ProjectRecord> = new Map();
   private flushTimer: NodeJS.Timeout | null = null;
   private outputPath: string;
