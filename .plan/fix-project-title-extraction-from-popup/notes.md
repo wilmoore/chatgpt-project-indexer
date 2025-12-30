@@ -75,3 +75,19 @@ const titleAttr = await item.getAttribute('title');
 2. Verify "Sunrise Fuel :: CaptionsAI" captured correctly
 3. Spot-check other projects for proper casing/delimiters
 4. Update existing Supabase data with corrected titles
+
+## Resolution
+
+**Status**: FIXED
+
+**Actual Root Cause**: The `querySelector('span, div')` was finding the icon container div (first child) which has no text, instead of the text container div (second child).
+
+**Fix Applied**: Use `innerText` directly on the anchor element, which correctly returns the full title with proper casing and delimiters.
+
+**Verification Results**:
+- 345 projects extracted successfully
+- 71 projects now have `::` delimiter properly captured
+- Sample: "Public Speaking :: Two Weeks Notice", "Śavvy AI :: ChatGPT"
+- All data synced to Supabase
+
+**Commit**: `718cda6` on branch `fix/project-title-extraction-from-popup`
