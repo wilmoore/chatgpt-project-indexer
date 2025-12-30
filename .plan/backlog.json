@@ -1,6 +1,18 @@
 {
-  "lastSequence": 20,
+  "lastSequence": 21,
   "items": [
+    {
+      "id": 21,
+      "title": "Bug: Project titles extracted as lowercase slug instead of proper title",
+      "description": "Project titles are captured as lowercase with spaces (e.g., 'sunrise fuel captionsai') instead of proper casing with delimiters (e.g., 'Sunrise Fuel :: CaptionsAI'). Root cause: extractProjectsFromPopup() falls back to URL slug parsing when innerText extraction fails, but doesn't check the title attribute which contains the full proper-cased title. This violates PRD requirements DP-04 (full-fidelity capture) and success criteria (full titles match tooltip-expanded text).",
+      "category": "bug",
+      "severity": "high",
+      "fingerprint": "bug|21|project-title-lowercase-slug",
+      "source": "/pro:bug",
+      "sourceBranch": "fix/project-title-extraction-from-popup",
+      "createdAt": "2025-12-29T12:00:00.000Z",
+      "status": "done"
+    },
     {
       "id": 1,
       "title": "E-001: Browser automation bootstrap",

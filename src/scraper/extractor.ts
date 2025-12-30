@@ -36,19 +36,23 @@ export async function extractProjectsFromPopup(
         continue;
       }
 
-      // Get visible text as title (can't hover in popup)
-      let title = await item.evaluate((el) => {
-        const htmlEl = el as HTMLElement;
-        // Look for text span inside the link
-        const textEl = htmlEl.querySelector('span, div');
-        if (textEl) {
-          return (textEl as HTMLElement).innerText?.trim() || '';
-        }
-        return htmlEl.innerText?.trim() || '';
+      // Get title from innerText directly (contains proper-cased title)
+      // Note: Don't use querySelector for child elements - the first div is the icon container
+      const innerText = await item.evaluate((el) => {
+        return (el as HTMLElement).innerText?.trim() || '';
       });
 
-      // If title is empty or too long, extract from ID
-      if (!title || title.length > 200) {
+      // Fallback to title attribute if innerText is empty
+      const titleAttr = await item.getAttribute('title');
+
+      // Priority: innerText > title attribute > slug fallback
+      let title = '';
+      if (innerText && innerText.length < 200) {
+        title = innerText;
+      } else if (titleAttr && titleAttr.length < 200) {
+        title = titleAttr;
+      } else {
+        // Last resort - extract from URL slug (loses casing)
         const slugMatch = id.match(/g-p-[a-z0-9]+-(.+)$/);
         title = slugMatch ? slugMatch[1].replace(/-/g, ' ') : id;
       }

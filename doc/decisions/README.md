@@ -21,3 +21,5 @@ We use the [Michael Nygard format](https://cognitect.com/blog/2011/11/15/documen
 - [001. Use Playwright for Browser Automation](001-use-playwright-for-browser-automation.md)
 - [002. Layered Architecture with Separation of Concerns](002-layered-architecture-with-separation-of-concerns.md)
 - [003. JSON Lines Format for Output Storage](003-json-lines-format-for-output-storage.md)
+- [004. Multi-Backend Storage Architecture](004-multi-backend-storage-architecture.md)
+- [005. Run-Based Data Management](005-run-based-data-management.md)
