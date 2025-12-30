@@ -91,3 +91,8 @@ const titleAttr = await item.getAttribute('title');
 - All data synced to Supabase
 
 **Commit**: `718cda6` on branch `fix/project-title-extraction-from-popup`
+
+## Related ADRs
+
+- [004. Multi-Backend Storage Architecture](../../../doc/decisions/004-multi-backend-storage-architecture.md)
+- [005. Run-Based Data Management](../../../doc/decisions/005-run-based-data-management.md)

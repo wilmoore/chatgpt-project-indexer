@@ -1,5 +1,5 @@
 {
-  "lastSequence": 3,
+  "lastSequence": 5,
   "entries": [
     {
       "branch": "feat/mvp-chatgpt-project-indexer",
@@ -7,6 +7,13 @@
         "001-use-playwright-for-browser-automation.md",
         "002-layered-architecture-with-separation-of-concerns.md",
         "003-json-lines-format-for-output-storage.md"
+      ]
+    },
+    {
+      "branch": "fix/project-title-extraction-from-popup",
+      "adrs": [
+        "004-multi-backend-storage-architecture.md",
+        "005-run-based-data-management.md"
       ]
     }
   ]
