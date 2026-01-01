@@ -1,6 +1,18 @@
 {
-  "lastSequence": 21,
+  "lastSequence": 22,
   "items": [
+    {
+      "id": 22,
+      "title": "CLI auth subcommand for headless/remote authentication",
+      "description": "Add `auth` CLI commands for portable session management: `auth login` (opens browser, exports session + populates persistent context), `auth export` (export from existing session), `auth import <file>` (import session for headless use with validation and permission warnings), `auth status` (check validity). Update `run` command to check auth status before starting. Uses Playwright's storageState() for portable JSON session files.",
+      "category": "feature",
+      "severity": "high",
+      "fingerprint": "feature|22|cli-auth-subcommand",
+      "source": "/pro:feature",
+      "sourceBranch": "feat/cli-auth-subcommand",
+      "createdAt": "2025-12-30T00:00:00.000Z",
+      "status": "in-progress"
+    },
     {
       "id": 21,
       "title": "Bug: Project titles extracted as lowercase slug instead of proper title",
