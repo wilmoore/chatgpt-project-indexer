@@ -23,3 +23,4 @@ We use the [Michael Nygard format](https://cognitect.com/blog/2011/11/15/documen
 - [003. JSON Lines Format for Output Storage](003-json-lines-format-for-output-storage.md)
 - [004. Multi-Backend Storage Architecture](004-multi-backend-storage-architecture.md)
 - [005. Run-Based Data Management](005-run-based-data-management.md)
+- [006. Portable Session Management via Playwright Storage State](006-portable-session-via-storage-state.md)
