@@ -1,5 +1,5 @@
 {
-  "lastSequence": 5,
+  "lastSequence": 6,
   "entries": [
     {
       "branch": "feat/mvp-chatgpt-project-indexer",
@@ -14,6 +14,12 @@
       "adrs": [
         "004-multi-backend-storage-architecture.md",
         "005-run-based-data-management.md"
+      ]
+    },
+    {
+      "branch": "feat/cli-auth-subcommand",
+      "adrs": [
+        "006-portable-session-via-storage-state.md"
       ]
     }
   ]

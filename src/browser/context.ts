@@ -1,10 +1,12 @@
 import { chromium, BrowserContext } from 'playwright';
 import { CONFIG } from '../config/constants.js';
 import fs from 'fs/promises';
+import { constants as fsConstants } from 'fs';
 import path from 'path';
 
 export interface ContextOptions {
   headless: boolean;
+  onProgress?: (msg: string) => void;
 }
 
 /**
@@ -28,13 +30,61 @@ export async function hasExistingSession(): Promise<boolean> {
 }
 
 /**
+ * Checks if an imported session state file is waiting to be applied
+ */
+export async function hasImportedState(): Promise<boolean> {
+  try {
+    await fs.access(CONFIG.AUTH.IMPORTED_FILE, fsConstants.R_OK);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Applies imported storage state to the persistent context
+ * and removes the import file (one-time use)
+ */
+async function applyImportedState(
+  context: BrowserContext,
+  onProgress: (msg: string) => void
+): Promise<void> {
+  try {
+    const content = await fs.readFile(CONFIG.AUTH.IMPORTED_FILE, 'utf-8');
+    const storageState = JSON.parse(content);
+
+    if (storageState.cookies && Array.isArray(storageState.cookies)) {
+      // Add cookies to the context
+      await context.addCookies(storageState.cookies);
+      onProgress(`Applied ${storageState.cookies.length} cookies from imported session`);
+    }
+
+    // Remove the import file (one-time use)
+    await fs.unlink(CONFIG.AUTH.IMPORTED_FILE);
+    onProgress('Imported session file consumed');
+  } catch (error) {
+    onProgress(`Warning: Failed to apply imported session: ${error instanceof Error ? error.message : 'unknown error'}`);
+  }
+}
+
+/**
  * Creates a persistent browser context that preserves cookies and session
  * across runs. Uses a dedicated user data directory.
+ *
+ * If an imported session state file exists, it will be applied to the
+ * context and then deleted (one-time use).
  */
 export async function createPersistentContext(
   options: ContextOptions
 ): Promise<BrowserContext> {
+  const onProgress = options.onProgress || (() => {});
   await ensureUserDataDir();
+
+  // Check if there's an imported session to apply
+  const hasImported = await hasImportedState();
+  if (hasImported) {
+    onProgress('Found imported session state, will apply after launch...');
+  }
 
   const context = await chromium.launchPersistentContext(CONFIG.USER_DATA_DIR, {
     headless: options.headless,
@@ -48,6 +98,11 @@ export async function createPersistentContext(
       '--disable-blink-features=AutomationControlled',
     ],
   });
+
+  // Apply imported state if present
+  if (hasImported) {
+    await applyImportedState(context, onProgress);
+  }
 
   return context;
 }

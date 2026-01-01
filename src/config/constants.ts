@@ -1,6 +1,9 @@
 import path from 'path';
 import os from 'os';
 
+/** Base directory for all chatgpt-indexer data */
+const BASE_DIR = path.join(os.homedir(), '.chatgpt-indexer');
+
 /**
  * Application configuration constants
  */
@@ -8,8 +11,19 @@ export const CONFIG = {
   /** ChatGPT base URL */
   CHATGPT_URL: 'https://chatgpt.com',
 
+  /** Base directory for all application data */
+  BASE_DIR,
+
   /** User data directory for persistent browser session */
-  USER_DATA_DIR: path.join(os.homedir(), '.chatgpt-indexer', 'browser-data'),
+  USER_DATA_DIR: path.join(BASE_DIR, 'browser-data'),
+
+  /** Authentication state file paths */
+  AUTH: {
+    /** Default path for exported auth state (portable) */
+    STATE_FILE: path.join(BASE_DIR, 'auth-state.json'),
+    /** Path for imported state (consumed on next launch) */
+    IMPORTED_FILE: path.join(BASE_DIR, 'imported-state.json'),
+  },
 
   /** Default output file for project data */
   DEFAULT_OUTPUT_FILE: 'projects.json',
