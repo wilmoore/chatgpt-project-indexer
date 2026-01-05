@@ -59,6 +59,14 @@ export const CONFIG = {
     KEEP_RUNS: 3,
   },
 
+  /** Watch mode configuration */
+  WATCH: {
+    /** Default interval between scans (15 minutes) */
+    DEFAULT_INTERVAL: '15m',
+    /** Minimum allowed interval (1 minute) */
+    MIN_INTERVAL_MS: 60_000,
+  },
+
   /** Supabase configuration */
   SUPABASE: {
     /** Supabase project URL (from env or default to local) */

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
-import { runEnumeration } from './scraper/orchestrator.js';
+import { runEnumeration, runWatchMode } from './scraper/orchestrator.js';
 import { ProjectWriter } from './storage/writer.js';
 import {
   loginAndExport,
@@ -20,7 +20,7 @@ const program = new Command();
 program
   .name('chatgpt-indexer')
   .description('Enumerate all ChatGPT Projects via browser automation')
-  .version('1.0.0');
+  .version('1.3.0');
 
 program
   .command('run')
@@ -28,11 +28,14 @@ program
   .option('--headful', 'Force headful browser mode')
   .option('-o, --output <path>', 'Output file path', 'projects.json')
   .option('--skip-auth-check', 'Skip pre-flight authentication check')
+  .option('-w, --watch', 'Run continuously, re-scanning at intervals')
+  .option(
+    '-i, --interval <duration>',
+    'Scan interval in watch mode (e.g., 15m, 1h, 30s)',
+    CONFIG.WATCH.DEFAULT_INTERVAL
+  )
   .action(async (options) => {
     try {
-      console.log('ChatGPT Project Indexer');
-      console.log('='.repeat(40));
-
       // Pre-flight auth check (unless skipped)
       if (!options.skipAuthCheck) {
         const hasSession = await hasExistingSession();
@@ -53,13 +56,30 @@ program
         }
       }
 
-      await runEnumeration(
-        {
-          headful: options.headful,
-          output: options.output,
-        },
-        console.log
-      );
+      if (options.watch) {
+        // Watch mode: run continuously
+        await runWatchMode(
+          {
+            headful: options.headful,
+            output: options.output,
+            watch: true,
+            interval: options.interval,
+          },
+          console.log
+        );
+      } else {
+        // Single run mode
+        console.log('ChatGPT Project Indexer');
+        console.log('='.repeat(40));
+
+        await runEnumeration(
+          {
+            headful: options.headful,
+            output: options.output,
+          },
+          console.log
+        );
+      }
 
       process.exit(0);
     } catch (error) {

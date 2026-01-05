@@ -1,5 +1,5 @@
 {
-  "lastSequence": 6,
+  "lastSequence": 7,
   "entries": [
     {
       "branch": "feat/mvp-chatgpt-project-indexer",
@@ -20,6 +20,12 @@
       "branch": "feat/cli-auth-subcommand",
       "adrs": [
         "006-portable-session-via-storage-state.md"
+      ]
+    },
+    {
+      "branch": "feat/watch-mode",
+      "adrs": [
+        "007-watch-mode-with-timer-based-rescanning.md"
       ]
     }
   ]
