@@ -1,6 +1,18 @@
 {
-  "lastSequence": 22,
+  "lastSequence": 23,
   "items": [
+    {
+      "id": 23,
+      "title": "Watch mode for continuous enumeration",
+      "description": "Add --watch flag to run command for continuous operation. Re-scans every 15 minutes (configurable via --interval). Includes delta detection to report new vs unchanged projects, structured timestamped logging for journalctl/tail, and graceful shutdown on SIGTERM/SIGINT. Does not crash on errors - logs and retries on next interval.",
+      "category": "feature",
+      "severity": "high",
+      "fingerprint": "feature|23|watch-mode",
+      "source": "/pro:feature",
+      "sourceBranch": "feat/watch-mode",
+      "createdAt": "2026-01-04T00:00:00.000Z",
+      "status": "in-progress"
+    },
     {
       "id": 22,
       "title": "CLI auth subcommand for headless/remote authentication",
@@ -11,7 +23,7 @@
       "source": "/pro:feature",
       "sourceBranch": "feat/cli-auth-subcommand",
       "createdAt": "2025-12-30T00:00:00.000Z",
-      "status": "in-progress"
+      "status": "done"
     },
     {
       "id": 21,
@@ -112,9 +124,9 @@
       "fingerprint": "spec|spec-001|epic|e007-process-mgmt",
       "source": "/pro:spec.import",
       "sourceSpec": "spec-001",
-      "sourceBranch": null,
+      "sourceBranch": "feat/watch-mode",
       "createdAt": "2025-12-25T00:00:00.000Z",
-      "status": "open"
+      "status": "in-progress"
     },
     {
       "id": 8,

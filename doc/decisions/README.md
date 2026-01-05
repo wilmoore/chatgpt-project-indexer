@@ -24,3 +24,4 @@ We use the [Michael Nygard format](https://cognitect.com/blog/2011/11/15/documen
 - [004. Multi-Backend Storage Architecture](004-multi-backend-storage-architecture.md)
 - [005. Run-Based Data Management](005-run-based-data-management.md)
 - [006. Portable Session Management via Playwright Storage State](006-portable-session-via-storage-state.md)
+- [007. Watch Mode with Timer-Based Re-scanning](007-watch-mode-with-timer-based-rescanning.md)

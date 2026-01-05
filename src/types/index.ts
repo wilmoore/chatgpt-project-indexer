@@ -46,6 +46,20 @@ export interface ScrollProgress {
 export interface RunOptions {
   headful?: boolean;
   output?: string;
+  watch?: boolean;
+  interval?: string;
+}
+
+/**
+ * Result of a single enumeration scan (with delta information)
+ */
+export interface ScanResult {
+  totalProjects: number;
+  extracted: number;
+  failed: number;
+  newProjects: number;
+  unchangedProjects: number;
+  projectIds: Set<string>;
 }
 
 /**
