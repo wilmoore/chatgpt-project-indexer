@@ -231,6 +231,47 @@ Each project includes:
 
 ---
 
+## API Access (Supabase)
+
+When using Supabase storage, project data is accessible via REST API for external apps (e.g., mobile project explorer).
+
+### Local Supabase Endpoints
+
+| Endpoint | URL |
+|----------|-----|
+| **REST API** | `http://127.0.0.1:54321/rest/v1` |
+| **Anon Key** | `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0` |
+
+### Tables
+
+| Table | Description |
+|-------|-------------|
+| `projects` | Project records with id, title, timestamps |
+| `runs` | Enumeration run history and status |
+
+### Mobile/LAN Access
+
+To access from another device on your network, use your machine's LAN IP:
+
+```bash
+# Get your LAN IP (macOS)
+ipconfig getifaddr en0
+```
+
+Then configure the mobile app with:
+```
+http://<your-lan-ip>:54321/rest/v1
+```
+
+### Example API Call
+
+```bash
+curl 'http://127.0.0.1:54321/rest/v1/projects?select=id,title' \
+  -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0"
+```
+
+---
+
 ## Performance
 
 Scan time scales linearly with project count:
