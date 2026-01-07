@@ -1,5 +1,5 @@
 {
-  "lastSequence": 7,
+  "lastSequence": 8,
   "entries": [
     {
       "branch": "feat/mvp-chatgpt-project-indexer",
@@ -26,6 +26,12 @@
       "branch": "feat/watch-mode",
       "adrs": [
         "007-watch-mode-with-timer-based-rescanning.md"
+      ]
+    },
+    {
+      "branch": "feat/supabase-edge-functions",
+      "adrs": [
+        "008-supabase-edge-functions-for-api-access.md"
       ]
     }
   ]
