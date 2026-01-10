@@ -48,17 +48,23 @@ export class ProjectWriter {
 
   /**
    * Adds or updates a project record.
-   * Deduplicates by ID, preserving firstSeenAt for existing records.
+   * Deduplicates by ID, preserving firstSeenAt and pin state for existing records.
    */
   addProject(project: ProjectRecord): void {
     const existing = this.buffer.get(project.id);
 
     if (existing) {
-      // Update: keep original firstSeenAt, update title and lastConfirmedAt
+      // Update: keep original firstSeenAt and pin state, update rest
       this.buffer.set(project.id, {
         ...project,
         firstSeenAt: existing.firstSeenAt,
         lastConfirmedAt: project.lastConfirmedAt,
+        // Preserve pin state unless explicitly provided in update
+        pinned: project.pinned ?? existing.pinned,
+        pinnedAt: project.pinnedAt ?? existing.pinnedAt,
+        // Update icon info if provided, otherwise preserve
+        iconColor: project.iconColor ?? existing.iconColor,
+        iconEmoji: project.iconEmoji ?? existing.iconEmoji,
       });
     } else {
       // New project
@@ -117,6 +123,26 @@ export class ProjectWriter {
    */
   getProjects(): ProjectRecord[] {
     return Array.from(this.buffer.values());
+  }
+
+  /**
+   * Gets a single project by ID
+   */
+  getProject(id: string): ProjectRecord | undefined {
+    return this.buffer.get(id);
+  }
+
+  /**
+   * Gets only pinned projects, sorted by pinnedAt (oldest first for touch order)
+   */
+  getPinnedProjects(): ProjectRecord[] {
+    return Array.from(this.buffer.values())
+      .filter((p) => p.pinned === true)
+      .sort((a, b) => {
+        const aTime = a.pinnedAt ? new Date(a.pinnedAt).getTime() : 0;
+        const bTime = b.pinnedAt ? new Date(b.pinnedAt).getTime() : 0;
+        return aTime - bTime;
+      });
   }
 
   /**

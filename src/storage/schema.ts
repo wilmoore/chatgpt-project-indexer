@@ -43,10 +43,20 @@ export function isValidProjectRecord(data: unknown): data is ProjectRecord {
 
   const obj = data as Record<string, unknown>;
 
-  return (
+  // Required fields
+  const hasRequiredFields =
     typeof obj.id === 'string' &&
     typeof obj.title === 'string' &&
     typeof obj.firstSeenAt === 'string' &&
-    typeof obj.lastConfirmedAt === 'string'
-  );
+    typeof obj.lastConfirmedAt === 'string';
+
+  if (!hasRequiredFields) return false;
+
+  // Optional fields validation (if present, must be correct type)
+  if (obj.pinned !== undefined && typeof obj.pinned !== 'boolean') return false;
+  if (obj.pinnedAt !== undefined && typeof obj.pinnedAt !== 'string') return false;
+  if (obj.iconColor !== undefined && typeof obj.iconColor !== 'string') return false;
+  if (obj.iconEmoji !== undefined && typeof obj.iconEmoji !== 'string') return false;
+
+  return true;
 }

@@ -15,6 +15,10 @@ interface ProjectRow {
   run_id: string | null;
   created_at: string;
   updated_at: string;
+  pinned: boolean;
+  pinned_at: string | null;
+  icon_color: string | null;
+  icon_emoji: string | null;
 }
 
 /**
@@ -272,6 +276,10 @@ export class SupabaseWriter implements StorageBackend {
       first_seen_at: project.firstSeenAt,
       last_confirmed_at: project.lastConfirmedAt,
       run_id: this.currentRunId,
+      pinned: project.pinned ?? false,
+      pinned_at: project.pinnedAt ?? null,
+      icon_color: project.iconColor ?? null,
+      icon_emoji: project.iconEmoji ?? null,
     };
   }
 
@@ -287,6 +295,52 @@ export class SupabaseWriter implements StorageBackend {
    */
   getProjects(): ProjectRecord[] {
     return Array.from(this.buffer.values());
+  }
+
+  /**
+   * Gets a single project by ID from Supabase
+   */
+  async getProject(id: string): Promise<ProjectRecord | undefined> {
+    const { data, error } = await this.client
+      .from(CONFIG.SUPABASE.TABLE_NAME)
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error || !data) return undefined;
+
+    return this.fromSupabaseRow(data as ProjectRow);
+  }
+
+  /**
+   * Gets only pinned projects from Supabase, sorted by pinnedAt
+   */
+  async getPinnedProjects(): Promise<ProjectRecord[]> {
+    const { data, error } = await this.client
+      .from(CONFIG.SUPABASE.TABLE_NAME)
+      .select('*')
+      .eq('pinned', true)
+      .order('pinned_at', { ascending: true });
+
+    if (error || !data) return [];
+
+    return data.map((row) => this.fromSupabaseRow(row as ProjectRow));
+  }
+
+  /**
+   * Converts a Supabase row to ProjectRecord format
+   */
+  private fromSupabaseRow(row: ProjectRow): ProjectRecord {
+    return {
+      id: row.id,
+      title: row.title,
+      firstSeenAt: row.first_seen_at,
+      lastConfirmedAt: row.last_confirmed_at,
+      pinned: row.pinned,
+      pinnedAt: row.pinned_at ?? undefined,
+      iconColor: row.icon_color ?? undefined,
+      iconEmoji: row.icon_emoji ?? undefined,
+    };
   }
 
   /**

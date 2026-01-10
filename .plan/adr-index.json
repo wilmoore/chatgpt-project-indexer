@@ -1,5 +1,5 @@
 {
-  "lastSequence": 8,
+  "lastSequence": 9,
   "entries": [
     {
       "branch": "feat/mvp-chatgpt-project-indexer",
@@ -32,6 +32,12 @@
       "branch": "feat/supabase-edge-functions",
       "adrs": [
         "008-supabase-edge-functions-for-api-access.md"
+      ]
+    },
+    {
+      "branch": "feat/project-pinning",
+      "adrs": [
+        "009-invisible-touch-for-project-pinning.md"
       ]
     }
   ]

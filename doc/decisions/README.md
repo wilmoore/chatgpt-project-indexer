@@ -26,3 +26,4 @@ We use the [Michael Nygard format](https://cognitect.com/blog/2011/11/15/documen
 - [006. Portable Session Management via Playwright Storage State](006-portable-session-via-storage-state.md)
 - [007. Watch Mode with Timer-Based Re-scanning](007-watch-mode-with-timer-based-rescanning.md)
 - [008. Supabase Edge Functions for API Access](008-supabase-edge-functions-for-api-access.md)
+- [009. Invisible Touch for Project Pinning](009-invisible-touch-for-project-pinning.md)
