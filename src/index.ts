@@ -14,6 +14,7 @@ import { launchBrowser, navigateToChatGPT, closeBrowser } from './browser/manage
 import { createTouchMechanism, touchAllProjects } from './touch/index.js';
 import { CONFIG } from './config/constants.js';
 import { AuthState } from './types/index.js';
+import { setLogLevel } from './utils/logger.js';
 import path from 'path';
 import fs from 'fs/promises';
 
@@ -22,7 +23,14 @@ const program = new Command();
 program
   .name('chatgpt-indexer')
   .description('Enumerate all ChatGPT Projects via browser automation')
-  .version('1.5.0');
+  .version('1.5.0')
+  .option('-v, --verbose', 'Enable verbose debug logging')
+  .hook('preAction', () => {
+    const opts = program.opts();
+    if (opts.verbose) {
+      setLogLevel('DEBUG');
+    }
+  });
 
 program
   .command('run')

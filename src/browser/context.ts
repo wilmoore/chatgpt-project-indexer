@@ -1,5 +1,6 @@
 import { chromium, BrowserContext } from 'playwright';
 import { CONFIG } from '../config/constants.js';
+import { logger } from '../utils/logger.js';
 import fs from 'fs/promises';
 import { constants as fsConstants } from 'fs';
 import path from 'path';
@@ -22,9 +23,12 @@ async function ensureUserDataDir(): Promise<void> {
 export async function hasExistingSession(): Promise<boolean> {
   try {
     const cookiesPath = path.join(CONFIG.USER_DATA_DIR, 'Default', 'Cookies');
+    logger.debug(`Checking for existing session at: ${cookiesPath}`);
     await fs.access(cookiesPath);
+    logger.debug('Existing session found');
     return true;
   } catch {
+    logger.debug('No existing session found');
     return false;
   }
 }
@@ -34,9 +38,12 @@ export async function hasExistingSession(): Promise<boolean> {
  */
 export async function hasImportedState(): Promise<boolean> {
   try {
+    logger.debug(`Checking for imported state at: ${CONFIG.AUTH.IMPORTED_FILE}`);
     await fs.access(CONFIG.AUTH.IMPORTED_FILE, fsConstants.R_OK);
+    logger.debug('Imported state file found');
     return true;
   } catch {
+    logger.debug('No imported state file found');
     return false;
   }
 }
@@ -80,12 +87,16 @@ export async function createPersistentContext(
   const onProgress = options.onProgress || (() => {});
   await ensureUserDataDir();
 
+  logger.debug(`User data directory: ${CONFIG.USER_DATA_DIR}`);
+  logger.debug(`Headless mode: ${options.headless}`);
+
   // Check if there's an imported session to apply
   const hasImported = await hasImportedState();
   if (hasImported) {
     onProgress('Found imported session state, will apply after launch...');
   }
 
+  logger.debug('Launching persistent browser context...');
   const context = await chromium.launchPersistentContext(CONFIG.USER_DATA_DIR, {
     headless: options.headless,
     channel: 'chromium',
@@ -98,6 +109,7 @@ export async function createPersistentContext(
       '--disable-blink-features=AutomationControlled',
     ],
   });
+  logger.debug('Browser context launched successfully');
 
   // Apply imported state if present
   if (hasImported) {

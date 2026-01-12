@@ -5,6 +5,40 @@
 
 export type LogLevel = 'DEBUG' | 'INFO' | 'WARN' | 'ERROR';
 
+const LOG_LEVEL_PRIORITY: Record<LogLevel, number> = {
+  DEBUG: 0,
+  INFO: 1,
+  WARN: 2,
+  ERROR: 3,
+};
+
+/**
+ * Global log level setting. Default is INFO (debug messages hidden).
+ * Set to DEBUG to see verbose output.
+ */
+let currentLogLevel: LogLevel = 'INFO';
+
+/**
+ * Sets the global log level. Messages below this level will be suppressed.
+ */
+export function setLogLevel(level: LogLevel): void {
+  currentLogLevel = level;
+}
+
+/**
+ * Gets the current log level.
+ */
+export function getLogLevel(): LogLevel {
+  return currentLogLevel;
+}
+
+/**
+ * Checks if a given log level should be output based on current setting.
+ */
+function shouldLog(level: LogLevel): boolean {
+  return LOG_LEVEL_PRIORITY[level] >= LOG_LEVEL_PRIORITY[currentLogLevel];
+}
+
 export interface Logger {
   debug(message: string): void;
   info(message: string): void;
@@ -23,22 +57,30 @@ function formatMessage(level: LogLevel, message: string): string {
 
 /**
  * Creates a structured logger that outputs to stdout/stderr.
- * - DEBUG, INFO, WARN -> stdout
+ * - DEBUG, INFO, WARN -> stdout (DEBUG only if log level allows)
  * - ERROR -> stderr
  */
 export function createLogger(): Logger {
   return {
     debug(message: string): void {
-      console.log(formatMessage('DEBUG', message));
+      if (shouldLog('DEBUG')) {
+        console.log(formatMessage('DEBUG', message));
+      }
     },
     info(message: string): void {
-      console.log(formatMessage('INFO', message));
+      if (shouldLog('INFO')) {
+        console.log(formatMessage('INFO', message));
+      }
     },
     warn(message: string): void {
-      console.log(formatMessage('WARN', message));
+      if (shouldLog('WARN')) {
+        console.log(formatMessage('WARN', message));
+      }
     },
     error(message: string): void {
-      console.error(formatMessage('ERROR', message));
+      if (shouldLog('ERROR')) {
+        console.error(formatMessage('ERROR', message));
+      }
     },
   };
 }
