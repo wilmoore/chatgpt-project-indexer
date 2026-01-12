@@ -1,6 +1,18 @@
 {
-  "lastSequence": 31,
+  "lastSequence": 32,
   "items": [
+    {
+      "id": 32,
+      "title": "Missing @supabase/supabase-js dependency",
+      "description": "Application fails to start with ERR_MODULE_NOT_FOUND for @supabase/supabase-js. The package is imported in src/storage/supabase.ts but not listed in package.json dependencies. Steps to reproduce: npm start. Root cause: dependency was never added when Supabase backend was implemented.",
+      "category": "bug",
+      "severity": "critical",
+      "fingerprint": "bug|32|missing-supabase-dependency",
+      "source": "/pro:bug",
+      "sourceBranch": "fix/missing-supabase-dependency",
+      "createdAt": "2026-01-12T00:00:00.000Z",
+      "status": "in-progress"
+    },
     {
       "id": 31,
       "title": "Add unit test framework and core tests",
