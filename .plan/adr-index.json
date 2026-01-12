@@ -1,5 +1,5 @@
 {
-  "lastSequence": 9,
+  "lastSequence": 11,
   "entries": [
     {
       "branch": "feat/mvp-chatgpt-project-indexer",
@@ -38,6 +38,13 @@
       "branch": "feat/project-pinning",
       "adrs": [
         "009-invisible-touch-for-project-pinning.md"
+      ]
+    },
+    {
+      "branch": "fix/tests-and-security-audit",
+      "adrs": [
+        "010-vitest-for-test-framework.md",
+        "011-shared-cors-utility-for-edge-functions.md"
       ]
     }
   ]

@@ -1,6 +1,108 @@
 {
-  "lastSequence": 23,
+  "lastSequence": 31,
   "items": [
+    {
+      "id": 31,
+      "title": "Add unit test framework and core tests",
+      "description": "Set up vitest (recommended for ESM/TypeScript) and create unit tests for core modules: storage/writer.ts (data persistence logic), auth/detector.ts (authentication state detection), utils/interval-parser.ts (interval string parsing). No test framework currently configured.",
+      "category": "tests",
+      "severity": "high",
+      "fingerprint": "quality-unit-tests-missing",
+      "source": "/pro:audit",
+      "sourceBranch": "fix/tests-and-security-audit",
+      "createdAt": "2026-01-11T01:48:53.000Z",
+      "status": "resolved",
+      "resolvedAt": "2026-01-11T14:15:00.000Z",
+      "resolvedBranch": "fix/tests-and-security-audit"
+    },
+    {
+      "id": 30,
+      "title": "Add integration tests for multi-module workflows",
+      "description": "Create integration tests covering: storage backend fallback (Supabase unavailable → local JSON continues), run lifecycle (start → project extraction → complete with stats), pin/touch workflow end-to-end.",
+      "category": "tests",
+      "severity": "high",
+      "fingerprint": "quality-integration-tests-missing",
+      "source": "/pro:audit",
+      "sourceBranch": "fix/tests-and-security-audit",
+      "createdAt": "2026-01-11T01:48:53.000Z",
+      "status": "resolved",
+      "resolvedAt": "2026-01-11T14:15:00.000Z",
+      "resolvedBranch": "fix/tests-and-security-audit"
+    },
+    {
+      "id": 29,
+      "title": "Add E2E tests for browser automation workflows",
+      "description": "Add Playwright e2e tests using test fixtures for: auth flow validation, sidebar navigation and project enumeration, watch mode timer behavior. Playwright is already a dependency.",
+      "category": "tests",
+      "severity": "high",
+      "fingerprint": "quality-e2e-tests-missing",
+      "source": "/pro:audit",
+      "sourceBranch": "main",
+      "createdAt": "2026-01-11T01:48:53.000Z",
+      "status": "open"
+    },
+    {
+      "id": 28,
+      "title": "Migrate console.log calls to structured logger",
+      "description": "78 instances of console.log/error/warn across source files. The project has a structured logger (src/utils/logger.ts) that is underutilized. Migrate console.log calls to use log levels appropriately (debug for verbose, info for operations, warn/error for issues).",
+      "category": "debt",
+      "severity": "medium",
+      "fingerprint": "quality-console-log-excessive",
+      "source": "/pro:audit",
+      "sourceBranch": "main",
+      "createdAt": "2026-01-11T01:48:53.000Z",
+      "status": "open"
+    },
+    {
+      "id": 27,
+      "title": "Restrict CORS origins in Supabase edge functions",
+      "description": "Edge functions use Access-Control-Allow-Origin: \"*\" allowing any origin. For production deployment, restrict CORS to specific origins or use Supabase authentication to protect endpoints. Located in: supabase/functions/projects/index.ts, supabase/functions/meta/index.ts",
+      "category": "security",
+      "severity": "medium",
+      "fingerprint": "security-cors-wildcard",
+      "source": "/pro:audit",
+      "sourceBranch": "fix/tests-and-security-audit",
+      "createdAt": "2026-01-11T01:48:53.000Z",
+      "status": "resolved",
+      "resolvedAt": "2026-01-11T14:15:00.000Z",
+      "resolvedBranch": "fix/tests-and-security-audit"
+    },
+    {
+      "id": 26,
+      "title": "Document Supabase demo key as local-only default",
+      "description": "The local Supabase demo anon key is hardcoded as a fallback in src/config/constants.ts:75 and README.md:243. While this is the standard local development key, document clearly that production deployments must set SUPABASE_ANON_KEY environment variable.",
+      "category": "debt",
+      "severity": "medium",
+      "fingerprint": "security-hardcoded-demo-key",
+      "source": "/pro:audit",
+      "sourceBranch": "main",
+      "createdAt": "2026-01-11T01:48:53.000Z",
+      "status": "open"
+    },
+    {
+      "id": 25,
+      "title": "Review RLS policies for production Supabase deployment",
+      "description": "The runs table RLS policy allows anon role full access (using (true) with check (true)). Acceptable for local-only usage but not for public deployment. Implement proper RLS policies based on authenticated users or service role. Located in: supabase/migrations/20251230142808_add_run_tracking.sql:29-32",
+      "category": "security",
+      "severity": "medium",
+      "fingerprint": "security-rls-permissive",
+      "source": "/pro:audit",
+      "sourceBranch": "main",
+      "createdAt": "2026-01-11T01:48:53.000Z",
+      "status": "open"
+    },
+    {
+      "id": 24,
+      "title": "Add GitHub Actions CI pipeline",
+      "description": "No CI/CD configuration found (.github/workflows/ missing). Add a basic CI workflow that runs: npm run typecheck, npm run build, and tests (once added). This will prevent regressions on pull requests.",
+      "category": "debt",
+      "severity": "low",
+      "fingerprint": "quality-no-cicd",
+      "source": "/pro:audit",
+      "sourceBranch": "main",
+      "createdAt": "2026-01-11T01:48:53.000Z",
+      "status": "open"
+    },
     {
       "id": 23,
       "title": "Watch mode for continuous enumeration",
@@ -11,7 +113,9 @@
       "source": "/pro:feature",
       "sourceBranch": "feat/watch-mode",
       "createdAt": "2026-01-04T00:00:00.000Z",
-      "status": "in-progress"
+      "status": "done",
+      "resolvedAt": "2026-01-11T01:55:00.000Z",
+      "resolvedBranch": "main"
     },
     {
       "id": 22,
@@ -48,7 +152,9 @@
       "sourceSpec": "spec-001",
       "sourceBranch": null,
       "createdAt": "2025-12-25T00:00:00.000Z",
-      "status": "in-progress"
+      "status": "done",
+      "resolvedAt": "2026-01-11T01:55:00.000Z",
+      "resolvedBranch": "main"
     },
     {
       "id": 2,
@@ -61,7 +167,9 @@
       "sourceSpec": "spec-001",
       "sourceBranch": null,
       "createdAt": "2025-12-25T00:00:00.000Z",
-      "status": "in-progress"
+      "status": "done",
+      "resolvedAt": "2026-01-11T01:55:00.000Z",
+      "resolvedBranch": "main"
     },
     {
       "id": 3,
@@ -74,7 +182,9 @@
       "sourceSpec": "spec-001",
       "sourceBranch": null,
       "createdAt": "2025-12-25T00:00:00.000Z",
-      "status": "in-progress"
+      "status": "done",
+      "resolvedAt": "2026-01-11T01:55:00.000Z",
+      "resolvedBranch": "main"
     },
     {
       "id": 4,
@@ -87,7 +197,9 @@
       "sourceSpec": "spec-001",
       "sourceBranch": null,
       "createdAt": "2025-12-25T00:00:00.000Z",
-      "status": "in-progress"
+      "status": "done",
+      "resolvedAt": "2026-01-11T01:55:00.000Z",
+      "resolvedBranch": "main"
     },
     {
       "id": 5,
@@ -100,7 +212,9 @@
       "sourceSpec": "spec-001",
       "sourceBranch": null,
       "createdAt": "2025-12-25T00:00:00.000Z",
-      "status": "in-progress"
+      "status": "done",
+      "resolvedAt": "2026-01-11T01:55:00.000Z",
+      "resolvedBranch": "main"
     },
     {
       "id": 6,
@@ -113,7 +227,9 @@
       "sourceSpec": "spec-001",
       "sourceBranch": null,
       "createdAt": "2025-12-25T00:00:00.000Z",
-      "status": "open"
+      "status": "done",
+      "resolvedAt": "2026-01-11T01:55:00.000Z",
+      "resolvedBranch": "main"
     },
     {
       "id": 7,
@@ -126,7 +242,9 @@
       "sourceSpec": "spec-001",
       "sourceBranch": "feat/watch-mode",
       "createdAt": "2025-12-25T00:00:00.000Z",
-      "status": "in-progress"
+      "status": "done",
+      "resolvedAt": "2026-01-11T01:55:00.000Z",
+      "resolvedBranch": "main"
     },
     {
       "id": 8,
@@ -152,7 +270,9 @@
       "sourceSpec": "spec-001",
       "sourceBranch": null,
       "createdAt": "2025-12-25T00:00:00.000Z",
-      "status": "in-progress"
+      "status": "done",
+      "resolvedAt": "2026-01-11T01:55:00.000Z",
+      "resolvedBranch": "main"
     },
     {
       "id": 10,
@@ -165,7 +285,9 @@
       "sourceSpec": "spec-001",
       "sourceBranch": null,
       "createdAt": "2025-12-25T00:00:00.000Z",
-      "status": "in-progress"
+      "status": "done",
+      "resolvedAt": "2026-01-11T01:55:00.000Z",
+      "resolvedBranch": "main"
     },
     {
       "id": 11,
@@ -191,7 +313,9 @@
       "sourceSpec": "spec-001",
       "sourceBranch": null,
       "createdAt": "2025-12-25T00:00:00.000Z",
-      "status": "in-progress"
+      "status": "done",
+      "resolvedAt": "2026-01-11T01:55:00.000Z",
+      "resolvedBranch": "main"
     },
     {
       "id": 13,
@@ -204,7 +328,9 @@
       "sourceSpec": "spec-001",
       "sourceBranch": null,
       "createdAt": "2025-12-25T00:00:00.000Z",
-      "status": "in-progress"
+      "status": "done",
+      "resolvedAt": "2026-01-11T01:55:00.000Z",
+      "resolvedBranch": "main"
     },
     {
       "id": 14,
@@ -217,7 +343,9 @@
       "sourceSpec": "spec-001",
       "sourceBranch": null,
       "createdAt": "2025-12-25T00:00:00.000Z",
-      "status": "in-progress"
+      "status": "done",
+      "resolvedAt": "2026-01-11T01:55:00.000Z",
+      "resolvedBranch": "main"
     },
     {
       "id": 15,
@@ -230,7 +358,9 @@
       "sourceSpec": "spec-001",
       "sourceBranch": null,
       "createdAt": "2025-12-25T00:00:00.000Z",
-      "status": "open"
+      "status": "done",
+      "resolvedAt": "2026-01-11T01:55:00.000Z",
+      "resolvedBranch": "main"
     },
     {
       "id": 16,
@@ -243,7 +373,9 @@
       "sourceSpec": "spec-001",
       "sourceBranch": null,
       "createdAt": "2025-12-25T00:00:00.000Z",
-      "status": "open"
+      "status": "done",
+      "resolvedAt": "2026-01-11T01:55:00.000Z",
+      "resolvedBranch": "main"
     },
     {
       "id": 17,
@@ -256,7 +388,9 @@
       "sourceSpec": "spec-001",
       "sourceBranch": null,
       "createdAt": "2025-12-25T00:00:00.000Z",
-      "status": "open"
+      "status": "done",
+      "resolvedAt": "2026-01-11T01:55:00.000Z",
+      "resolvedBranch": "main"
     },
     {
       "id": 18,
@@ -269,7 +403,9 @@
       "sourceSpec": "spec-001",
       "sourceBranch": null,
       "createdAt": "2025-12-25T00:00:00.000Z",
-      "status": "open"
+      "status": "done",
+      "resolvedAt": "2026-01-11T01:55:00.000Z",
+      "resolvedBranch": "main"
     },
     {
       "id": 19,
@@ -295,7 +431,9 @@
       "sourceSpec": "spec-001",
       "sourceBranch": null,
       "createdAt": "2025-12-25T00:00:00.000Z",
-      "status": "in-progress"
+      "status": "done",
+      "resolvedAt": "2026-01-11T01:55:00.000Z",
+      "resolvedBranch": "main"
     }
   ]
 }
