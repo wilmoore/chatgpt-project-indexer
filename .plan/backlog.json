@@ -11,7 +11,9 @@
       "source": "/pro:bug",
       "sourceBranch": "fix/missing-supabase-dependency",
       "createdAt": "2026-01-12T00:00:00.000Z",
-      "status": "in-progress"
+      "status": "resolved",
+      "resolvedAt": "2026-01-12T12:46:00.000Z",
+      "resolvedBranch": "fix/missing-supabase-dependency"
     },
     {
       "id": 31,
