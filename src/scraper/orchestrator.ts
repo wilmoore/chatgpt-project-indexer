@@ -16,6 +16,7 @@ import type { ProgressCallback, RunOptions, ProjectRecord, ScanResult } from '..
 import type { StorageBackend } from '../storage/types.js';
 import { logger, parseInterval, formatInterval } from '../utils/logger.js';
 import { CONFIG } from '../config/constants.js';
+import { createTouchMechanism, createTouchQueueProcessor, TouchQueueProcessor } from '../touch/index.js';
 
 export interface EnumerationResult {
   totalProjects: number;
@@ -230,6 +231,7 @@ async function runSingleScan(
 /**
  * Runs continuous enumeration in watch mode.
  * Scans at regular intervals and reports deltas.
+ * Also processes touch queue requests from the API.
  */
 export async function runWatchMode(
   options: RunOptions,
@@ -250,9 +252,16 @@ export async function runWatchMode(
   let previousProjectIds = new Set<string>();
   let scanCount = 0;
 
+  // Touch queue processor for API-triggered touch operations
+  let queueProcessor: TouchQueueProcessor | null = null;
+  const touchMechanism = createTouchMechanism('icon_color');
+
   // Setup signal handlers
   const handleSignal = (signal: string) => {
     logger.info(`Received ${signal}, shutting down gracefully...`);
+    if (queueProcessor) {
+      queueProcessor.stopPolling();
+    }
     requestShutdown();
   };
 
@@ -307,6 +316,19 @@ export async function runWatchMode(
         // Ensure browser is available
         const activePage = await ensureBrowser();
 
+        // Start touch queue processor if not already running
+        if (!queueProcessor || !queueProcessor.isPolling()) {
+          queueProcessor = createTouchQueueProcessor();
+          queueProcessor.startPolling(activePage, touchMechanism, (result) => {
+            if (result.processed > 0) {
+              logger.info(
+                `Touch queue: processed ${result.processed} request(s) ` +
+                `(${result.succeeded} succeeded, ${result.failed} failed)`
+              );
+            }
+          });
+        }
+
         // Start a new run for this scan
         await startRun(backends);
 
@@ -338,6 +360,10 @@ export async function runWatchMode(
         // Mark page as dead if it's a browser error
         if (message.includes('Target page') || message.includes('browser has been closed')) {
           page = null;
+          // Stop queue processor since page is dead - will restart with new page
+          if (queueProcessor) {
+            queueProcessor.stopPolling();
+          }
         }
       }
 
@@ -350,6 +376,10 @@ export async function runWatchMode(
 
     logger.info('Watch mode stopped');
   } finally {
+    // Stop touch queue polling
+    if (queueProcessor) {
+      queueProcessor.stopPolling();
+    }
     await closeBackends(backends);
     if (context) {
       await closeBrowser(context);

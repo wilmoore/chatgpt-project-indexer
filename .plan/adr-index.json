@@ -1,5 +1,5 @@
 {
-  "lastSequence": 11,
+  "lastSequence": 13,
   "entries": [
     {
       "branch": "feat/mvp-chatgpt-project-indexer",
@@ -45,6 +45,13 @@
       "adrs": [
         "010-vitest-for-test-framework.md",
         "011-shared-cors-utility-for-edge-functions.md"
+      ]
+    },
+    {
+      "branch": "feat/touch-api-and-docs",
+      "adrs": [
+        "012-queue-based-touch-api.md",
+        "013-atomic-run-support.md"
       ]
     }
   ]

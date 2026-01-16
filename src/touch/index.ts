@@ -11,6 +11,8 @@ import { IconColorTouch } from './icon-color.js';
 
 export * from './types.js';
 export { IconColorTouch } from './icon-color.js';
+export { TouchQueueProcessor, createTouchQueueProcessor } from './queue-processor.js';
+export type { QueueProcessResult } from './queue-processor.js';
 
 /**
  * Available touch mechanisms
