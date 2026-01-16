@@ -84,7 +84,7 @@ export const CONFIG = {
   /** Touch queue configuration */
   TOUCH_QUEUE: {
     /** Interval between queue polls in watch mode (ms) */
-    POLL_INTERVAL: 5_000,
+    POLL_INTERVAL: 2_000,
     /** Maximum requests to process per poll cycle */
     BATCH_SIZE: 10,
   },

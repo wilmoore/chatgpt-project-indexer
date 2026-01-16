@@ -9,6 +9,7 @@
   },
   "scripts": {
     "dev": "tsx src/index.ts",
+    "dev:watch": "tsx --watch src/index.ts run --watch --interval 1m",
     "build": "tsc",
     "start": "node dist/index.js",
     "watch": "node dist/index.js run --watch",

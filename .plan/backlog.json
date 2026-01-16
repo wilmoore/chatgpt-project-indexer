@@ -1,6 +1,20 @@
 {
-  "lastSequence": 33,
+  "lastSequence": 34,
   "items": [
+    {
+      "id": 34,
+      "title": "Hot reload for watch mode",
+      "description": "Explore whether hot reloading can be supported when the indexer runs in watch mode. When iterating on code, the process should automatically pick up changes without manual restarts. This reduces friction during development.",
+      "category": "spike",
+      "severity": "medium",
+      "fingerprint": "spike|34|hot-reload-watch-mode",
+      "source": "/pro:spike",
+      "sourceBranch": "spike/hot-reload-watch-mode",
+      "createdAt": "2026-01-16T12:00:00.000Z",
+      "status": "done",
+      "resolvedAt": "2026-01-16T12:30:00.000Z",
+      "resolvedBranch": "spike/hot-reload-watch-mode"
+    },
     {
       "id": 33,
       "title": "Touch API and OpenAPI documentation",
