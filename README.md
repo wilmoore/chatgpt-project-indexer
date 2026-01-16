@@ -231,16 +231,132 @@ Each project includes:
 
 ---
 
-## API Access (Supabase)
+## API Reference
 
-When using Supabase storage, project data is accessible via REST API for external apps (e.g., mobile project explorer).
+The project provides a REST API for external apps (Raycast, mobile explorers, etc.).
 
-### Local Supabase Endpoints
+### OpenAPI Documentation
 
-| Endpoint | URL |
-|----------|-----|
-| **REST API** | `http://127.0.0.1:54321/rest/v1` |
-| **Anon Key** | `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0` |
+Full API specification is available at:
+- **OpenAPI Spec:** [`doc/api/openapi.yaml`](doc/api/openapi.yaml)
+- **Live Endpoint:** `http://127.0.0.1:54321/functions/v1/docs`
+
+### Base URLs
+
+| Service | URL |
+|---------|-----|
+| **PostgREST API** | `http://127.0.0.1:54321/rest/v1` |
+| **Edge Functions** | `http://127.0.0.1:54321/functions/v1` |
+| **API Docs** | `http://127.0.0.1:54321/functions/v1/docs` |
+
+### Authentication
+
+All requests require the Supabase anon key in the `apikey` header:
+
+```bash
+# Local development key
+apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
+```
+
+### Endpoints
+
+#### List Projects
+
+```bash
+GET /rest/v1/projects
+```
+
+Returns all indexed ChatGPT projects.
+
+```bash
+curl 'http://127.0.0.1:54321/rest/v1/projects?select=id,title&order=title.asc' \
+  -H "apikey: <anon-key>"
+```
+
+#### Touch a Project (Float to Top)
+
+```bash
+POST /rest/v1/touch_queue
+```
+
+Queues a project to be "touched" — floats it to the top of the ChatGPT sidebar. Processed within 5-10 seconds by the indexer's watch mode.
+
+```bash
+curl -X POST 'http://127.0.0.1:54321/rest/v1/touch_queue' \
+  -H "apikey: <anon-key>" \
+  -H "Content-Type: application/json" \
+  -H "Prefer: return=representation" \
+  -d '{"project_id": "g-p-abc123"}'
+```
+
+**Response:**
+```json
+{
+  "id": 1,
+  "project_id": "g-p-abc123",
+  "status": "pending",
+  "created_at": "2026-01-15T16:30:00Z"
+}
+```
+
+**Status Values:**
+- `pending` — Waiting to be processed
+- `processing` — Currently being touched
+- `completed` — Successfully floated to top
+- `failed` — Touch operation failed
+
+#### Check Touch Status
+
+```bash
+GET /rest/v1/touch_queue?project_id=eq.{id}&order=created_at.desc&limit=1
+```
+
+```bash
+curl 'http://127.0.0.1:54321/rest/v1/touch_queue?project_id=eq.g-p-abc123&order=created_at.desc&limit=1' \
+  -H "apikey: <anon-key>"
+```
+
+#### Get Index Metadata
+
+```bash
+GET /functions/v1/meta
+```
+
+```bash
+curl 'http://127.0.0.1:54321/functions/v1/meta'
+```
+
+**Response:**
+```json
+{
+  "name": "ChatGPT Project Index",
+  "version": "1.0.0",
+  "project_count": 473
+}
+```
+
+### Raycast Integration
+
+For Raycast extensions, configure the API URL in extension settings:
+
+```
+http://127.0.0.1:54321/rest/v1/projects
+```
+
+To add a "Touch" action:
+
+```typescript
+async function touchProject(projectId: string) {
+  await fetch('http://127.0.0.1:54321/rest/v1/touch_queue', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': '<anon-key>',
+    },
+    body: JSON.stringify({ project_id: projectId }),
+  });
+}
+```
 
 ### Tables
 
@@ -248,6 +364,7 @@ When using Supabase storage, project data is accessible via REST API for externa
 |-------|-------------|
 | `projects` | Project records with id, title, timestamps |
 | `runs` | Enumeration run history and status |
+| `touch_queue` | Queue for touch operations from API |
 
 ### Mobile/LAN Access
 
@@ -261,13 +378,6 @@ ipconfig getifaddr en0
 Then configure the mobile app with:
 ```
 http://<your-lan-ip>:54321/rest/v1
-```
-
-### Example API Call
-
-```bash
-curl 'http://127.0.0.1:54321/rest/v1/projects?select=id,title' \
-  -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0"
 ```
 
 ---

@@ -29,3 +29,5 @@ We use the [Michael Nygard format](https://cognitect.com/blog/2011/11/15/documen
 - [009. Invisible Touch for Project Pinning](009-invisible-touch-for-project-pinning.md)
 - [010. Vitest for Test Framework](010-vitest-for-test-framework.md)
 - [011. Shared CORS Utility for Edge Functions](011-shared-cors-utility-for-edge-functions.md)
+- [012. Queue-Based Touch API](012-queue-based-touch-api.md)
+- [013. Atomic Run Support for Data Integrity](013-atomic-run-support.md)

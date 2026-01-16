@@ -1,6 +1,18 @@
 {
-  "lastSequence": 32,
+  "lastSequence": 33,
   "items": [
+    {
+      "id": 33,
+      "title": "Touch API and OpenAPI documentation",
+      "description": "Expose touch functionality via REST API so Raycast extension can trigger touch operations to float projects to top of ChatGPT sidebar. Uses queue-based pattern: POST to touch_queue table via PostgREST, indexer watch mode polls and processes. Also adds OpenAPI/Swagger documentation for all API endpoints.",
+      "category": "feature",
+      "severity": "medium",
+      "fingerprint": "feature|33|touch-api-and-docs",
+      "source": "/pro:feature",
+      "sourceBranch": "feat/touch-api-and-docs",
+      "createdAt": "2026-01-15T16:45:00.000Z",
+      "status": "in-progress"
+    },
     {
       "id": 32,
       "title": "Missing @supabase/supabase-js dependency",
