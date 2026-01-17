@@ -28,7 +28,25 @@ async function fetchGizmo(
       });
 
       if (!response.ok) {
-        return { error: `Failed to fetch gizmo: ${response.status}` };
+        // Provide more context for common error codes
+        let errorDetail: string;
+        switch (response.status) {
+          case 403:
+            errorDetail = 'Access denied - project may be deleted or you lack edit permissions';
+            break;
+          case 404:
+            errorDetail = 'Project not found - it may have been deleted';
+            break;
+          case 401:
+            errorDetail = 'Authentication required - session may have expired';
+            break;
+          case 429:
+            errorDetail = 'Rate limited - too many requests';
+            break;
+          default:
+            errorDetail = `HTTP ${response.status}`;
+        }
+        return { error: errorDetail, status: response.status };
       }
 
       const data = await response.json();

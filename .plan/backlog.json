@@ -1,6 +1,18 @@
 {
-  "lastSequence": 34,
+  "lastSequence": 35,
   "items": [
+    {
+      "id": 35,
+      "title": "Touch queue race condition with scan navigation",
+      "description": "Touch queue processing fails with 'Execution context was destroyed' and subsequent 403 errors. Root cause: race condition where touch queue starts polling immediately after browser launch, but runSingleScan() navigates the page which destroys the execution context of in-progress page.evaluate() calls. Fix: start/resume touch queue AFTER scan completes instead of before.",
+      "category": "bug",
+      "severity": "high",
+      "fingerprint": "bug|35|touch-queue-race-condition",
+      "source": "/pro:bug",
+      "sourceBranch": "fix/touch-queue-navigation-and-403-errors",
+      "createdAt": "2026-01-16T18:00:00.000Z",
+      "status": "in-progress"
+    },
     {
       "id": 34,
       "title": "Hot reload for watch mode",
