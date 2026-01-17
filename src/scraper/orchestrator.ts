@@ -316,9 +316,23 @@ export async function runWatchMode(
         // Ensure browser is available
         const activePage = await ensureBrowser();
 
-        // Start touch queue processor if not already running
-        if (!queueProcessor || !queueProcessor.isPolling()) {
+        // Pause touch queue during scan to avoid race condition with navigation
+        // (touch operations use page.evaluate which gets destroyed on navigation)
+        if (queueProcessor?.isPolling()) {
+          queueProcessor.stopPolling();
+        }
+
+        // Start a new run for this scan
+        await startRun(backends);
+
+        const result = await runSingleScan(activePage, backends, previousProjectIds);
+
+        // Start/resume touch queue processor AFTER scan completes
+        // This ensures the page is stable and won't navigate during touch operations
+        if (!queueProcessor) {
           queueProcessor = createTouchQueueProcessor();
+        }
+        if (!queueProcessor.isPolling()) {
           queueProcessor.startPolling(activePage, touchMechanism, (result) => {
             if (result.processed > 0) {
               logger.info(
@@ -328,11 +342,6 @@ export async function runWatchMode(
             }
           });
         }
-
-        // Start a new run for this scan
-        await startRun(backends);
-
-        const result = await runSingleScan(activePage, backends, previousProjectIds);
 
         // Complete the run
         await completeRun(backends, { found: result.totalProjects, extracted: result.extracted });
