@@ -11,7 +11,9 @@
       "source": "/pro:bug",
       "sourceBranch": "fix/touch-queue-navigation-and-403-errors",
       "createdAt": "2026-01-16T18:00:00.000Z",
-      "status": "in-progress"
+      "status": "resolved",
+      "resolvedAt": "2026-01-18T18:00:00.000Z",
+      "resolvedBranch": "fix/touch-queue-navigation-and-403-errors"
     },
     {
       "id": 34,
