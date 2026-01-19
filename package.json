@@ -1,6 +1,6 @@
 {
   "name": "chatgpt-project-indexer",
-  "version": "1.6.2",
+  "version": "1.6.3",
   "description": "Enumerate all ChatGPT Projects via browser automation",
   "type": "module",
   "main": "dist/index.js",
@@ -16,7 +16,10 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "auth:login": "tsx src/index.ts auth login",
+    "auth:status": "tsx src/index.ts auth status",
+    "auth:export": "tsx src/index.ts auth export"
   },
   "keywords": [
     "chatgpt",
