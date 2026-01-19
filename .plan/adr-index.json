@@ -1,5 +1,5 @@
 {
-  "lastSequence": 13,
+  "lastSequence": 14,
   "entries": [
     {
       "branch": "feat/mvp-chatgpt-project-indexer",
@@ -52,6 +52,12 @@
       "adrs": [
         "012-queue-based-touch-api.md",
         "013-atomic-run-support.md"
+      ]
+    },
+    {
+      "branch": "fix/authentication-timeout-silent-failures",
+      "adrs": [
+        "014-pluggable-notification-system.md"
       ]
     }
   ]

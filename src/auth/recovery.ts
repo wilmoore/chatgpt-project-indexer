@@ -12,13 +12,53 @@ export class AuthRecoveryError extends Error {
 }
 
 /**
+ * Attempts auto-recovery by refreshing the page and checking auth state.
+ * Returns true if auto-recovery succeeded, false otherwise.
+ */
+async function attemptAutoRecovery(
+  page: Page,
+  onProgress: ProgressCallback
+): Promise<boolean> {
+  onProgress('Auto-recovery: attempting page refresh...');
+
+  try {
+    await page.reload({ waitUntil: 'networkidle' });
+    await page.waitForTimeout(3000);
+
+    const authState = await detectAuthState(page);
+    if (authState === AuthState.AUTHENTICATED) {
+      onProgress('Auto-recovery successful');
+      return true;
+    }
+  } catch (refreshError) {
+    onProgress('Auto-recovery failed: could not refresh page');
+  }
+
+  return false;
+}
+
+/**
  * Handles authentication expiration during enumeration.
- * Pauses, brings browser to front, waits for user to re-authenticate.
+ * First attempts auto-recovery via page refresh.
+ * If that fails, brings browser to front and waits for user to re-authenticate.
+ *
+ * @param page - The Playwright page instance
+ * @param onProgress - Progress callback for status updates
+ * @param skipAutoRecovery - Skip auto-recovery attempt (useful if already tried)
  */
 export async function recoverFromAuthExpiration(
   page: Page,
-  onProgress: ProgressCallback
+  onProgress: ProgressCallback,
+  skipAutoRecovery = false
 ): Promise<void> {
+  // Try auto-recovery first (unless skipped)
+  if (!skipAutoRecovery) {
+    const recovered = await attemptAutoRecovery(page, onProgress);
+    if (recovered) {
+      return;
+    }
+  }
+
   onProgress('Authentication expired. Please log in to continue.');
   onProgress('Browser window will be brought to front for login.');
 

@@ -1,6 +1,20 @@
 {
-  "lastSequence": 35,
+  "lastSequence": 36,
   "items": [
+    {
+      "id": 36,
+      "title": "Authentication timeout silent failures - no external notification",
+      "description": "Watch mode fails silently with authentication timeouts. System logs warnings and retries but user has no visibility without watching logs. Requires SMS notification on first auth failure, with auto-recovery attempt (page refresh) before alerting. Related to E-008 notifications epic.",
+      "category": "bug",
+      "severity": "high",
+      "fingerprint": "bug|36|auth-timeout-silent-failures",
+      "source": "/pro:bug",
+      "sourceBranch": "fix/authentication-timeout-silent-failures",
+      "createdAt": "2026-01-19T15:45:00.000Z",
+      "status": "resolved",
+      "resolvedAt": "2026-01-19T16:15:00.000Z",
+      "resolvedBranch": "fix/authentication-timeout-silent-failures"
+    },
     {
       "id": 35,
       "title": "Touch queue race condition with scan navigation",
