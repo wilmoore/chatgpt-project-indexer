@@ -1,6 +1,18 @@
 {
-  "lastSequence": 36,
+  "lastSequence": 37,
   "items": [
+    {
+      "id": 37,
+      "title": "Add npm helper scripts for authentication commands",
+      "description": "Add npm scripts for frequently used authentication commands: auth:login, auth:status, auth:export. Uses tsx for development-friendly execution without requiring a build step.",
+      "category": "feature",
+      "severity": "low",
+      "fingerprint": "feature|37|auth-helper-scripts",
+      "source": "/pro:feature",
+      "sourceBranch": "feat/add-authentication-helper-scripts",
+      "createdAt": "2026-01-19T17:00:00.000Z",
+      "status": "in-progress"
+    },
     {
       "id": 36,
       "title": "Authentication timeout silent failures - no external notification",
