@@ -17,6 +17,12 @@ import type { StorageBackend } from '../storage/types.js';
 import { logger, parseInterval, formatInterval } from '../utils/logger.js';
 import { CONFIG } from '../config/constants.js';
 import { createTouchMechanism, createTouchQueueProcessor, TouchQueueProcessor } from '../touch/index.js';
+import {
+  loadNotificationConfig,
+  createNotifier,
+  getEnabledChannels,
+  type Notifier,
+} from '../notifications/index.js';
 
 export interface EnumerationResult {
   totalProjects: number;
@@ -246,6 +252,15 @@ export async function runWatchMode(
 
   logger.info(`Starting watch mode (interval: ${formatInterval(intervalMs)})`);
 
+  // Initialize notification system
+  const notificationConfig = loadNotificationConfig();
+  const notify: Notifier = createNotifier(notificationConfig);
+  const enabledChannels = getEnabledChannels(notificationConfig);
+
+  if (enabledChannels.length > 0) {
+    logger.info(`Notifications enabled: ${enabledChannels.join(', ')}`);
+  }
+
   let context: BrowserContext | null = null;
   let page: Page | null = null;
   const backends = createStorageBackends(options.output);
@@ -365,6 +380,26 @@ export async function runWatchMode(
         const message = error instanceof Error ? error.message : String(error);
         logger.warn(`Scan #${scanCount} failed: ${message} - will retry in ${formatInterval(intervalMs)}`);
         await failRun(backends);
+
+        // Send notification for auth failures
+        if (message.includes('Authentication timeout')) {
+          const notifyResult = await notify(
+            'auth_failure',
+            `ChatGPT Indexer: Auth expired. Please re-authenticate. Scan #${scanCount} failed.`
+          );
+
+          if (notifyResult.sent) {
+            logger.info(`Notification sent via: ${notifyResult.channels.join(', ')}`);
+          }
+          if (notifyResult.errors.length > 0) {
+            for (const err of notifyResult.errors) {
+              logger.warn(`Notification failed (${err.channel}): ${err.error}`);
+            }
+          }
+          if (notifyResult.suppressed) {
+            logger.debug(`Notification suppressed: ${notifyResult.reason}`);
+          }
+        }
 
         // Mark page as dead if it's a browser error
         if (message.includes('Target page') || message.includes('browser has been closed')) {
