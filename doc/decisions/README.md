@@ -32,3 +32,4 @@ We use the [Michael Nygard format](https://cognitect.com/blog/2011/11/15/documen
 - [012. Queue-Based Touch API](012-queue-based-touch-api.md)
 - [013. Atomic Run Support for Data Integrity](013-atomic-run-support.md)
 - [014. Pluggable Notification System](014-pluggable-notification-system.md)
+- [015. Remove Pin/Touch Functionality](015-remove-pin-touch-functionality.md) (supersedes 009, 012)

@@ -45,7 +45,4 @@ export interface StorageBackend {
 
   /** Get a single project by ID (may be async for remote backends) */
   getProject?(id: string): ProjectRecord | undefined | Promise<ProjectRecord | undefined>;
-
-  /** Get only pinned projects, sorted by pinnedAt (oldest first for touch order) */
-  getPinnedProjects?(): ProjectRecord[] | Promise<ProjectRecord[]>;
 }

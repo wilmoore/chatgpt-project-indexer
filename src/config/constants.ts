@@ -77,16 +77,6 @@ export const CONFIG = {
     TABLE_NAME: 'projects',
     /** Table name for runs */
     RUNS_TABLE: 'runs',
-    /** Table name for touch queue */
-    TOUCH_QUEUE_TABLE: 'touch_queue',
-  },
-
-  /** Touch queue configuration */
-  TOUCH_QUEUE: {
-    /** Interval between queue polls in watch mode (ms) */
-    POLL_INTERVAL: 2_000,
-    /** Maximum requests to process per poll cycle */
-    BATCH_SIZE: 10,
   },
 
   /** Browser viewport dimensions */
