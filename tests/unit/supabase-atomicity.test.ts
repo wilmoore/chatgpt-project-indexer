@@ -7,6 +7,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
  * 1. Failed flushes prevent run completion (protecting data)
  * 2. Cleanup only runs after successful completion
  * 3. Projects are tagged with last_confirmed_run_id for safe cleanup
+ * 4. failRun() flushes buffer before marking run as failed
  */
 
 // Mock the Supabase client
@@ -24,6 +25,13 @@ vi.mock('@supabase/supabase-js', () => ({
     from: mockFrom,
     rpc: mockRpc,
   }),
+}));
+
+// Mock fs/promises to prevent reading actual local files during tests
+vi.mock('fs/promises', () => ({
+  default: {
+    readFile: vi.fn().mockRejectedValue({ code: 'ENOENT' }),
+  },
 }));
 
 // Import after mocking
@@ -228,6 +236,93 @@ describe('Supabase Atomicity', () => {
 
       expect(rows[0]).toHaveProperty('last_confirmed_run_id');
       expect(rows[0].last_confirmed_run_id).toBe('run-123');
+    });
+  });
+
+  describe('failRun flushes buffer', () => {
+    it('flushes buffered projects before marking run as failed', async () => {
+      // Setup: flush will succeed
+      mockUpsert.mockResolvedValue({ error: null });
+
+      mockSelect.mockReturnValueOnce({
+        eq: mockEq,
+        single: mockSingle,
+        order: vi.fn().mockResolvedValue({ data: [], error: null }),
+      });
+      await writer.initialize();
+      await writer.startRun();
+
+      // Add project to buffer
+      writer.addProject({
+        id: 'proj-1',
+        title: 'Test',
+        firstSeenAt: new Date().toISOString(),
+        lastConfirmedAt: new Date().toISOString(),
+      });
+
+      // Verify buffer has project
+      expect(writer.getProjects()).toHaveLength(1);
+
+      // Fail the run
+      await writer.failRun();
+
+      // Verify flush was called (upsert)
+      expect(mockUpsert).toHaveBeenCalled();
+
+      // Verify update was called to mark as failed
+      expect(mockUpdate).toHaveBeenCalled();
+    });
+
+    it('still marks run as failed even if flush fails', async () => {
+      // Setup: flush will fail
+      mockUpsert.mockResolvedValue({
+        error: { code: 'ERROR', message: 'Connection failed' },
+      });
+
+      mockSelect.mockReturnValueOnce({
+        eq: mockEq,
+        single: mockSingle,
+        order: vi.fn().mockResolvedValue({ data: [], error: null }),
+      });
+      await writer.initialize();
+      await writer.startRun();
+
+      writer.addProject({
+        id: 'proj-1',
+        title: 'Test',
+        firstSeenAt: new Date().toISOString(),
+        lastConfirmedAt: new Date().toISOString(),
+      });
+
+      // Fail the run
+      await writer.failRun();
+
+      // Verify flush was attempted
+      expect(mockUpsert).toHaveBeenCalled();
+
+      // Verify run was still marked as failed despite flush failure
+      expect(mockUpdate).toHaveBeenCalled();
+    });
+
+    it('skips flush when buffer is empty', async () => {
+      mockSelect.mockReturnValueOnce({
+        eq: mockEq,
+        single: mockSingle,
+        order: vi.fn().mockResolvedValue({ data: [], error: null }),
+      });
+      await writer.initialize();
+      await writer.startRun();
+
+      // No projects added - buffer is empty
+
+      // Fail the run
+      await writer.failRun();
+
+      // Verify upsert was NOT called (no projects to flush)
+      expect(mockUpsert).not.toHaveBeenCalled();
+
+      // Verify update was called to mark as failed
+      expect(mockUpdate).toHaveBeenCalled();
     });
   });
 
