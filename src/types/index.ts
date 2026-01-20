@@ -20,14 +20,6 @@ export interface ProjectRecord {
   firstSeenAt: string;
   /** ISO 8601 timestamp of most recent confirmation */
   lastConfirmedAt: string;
-  /** Whether this project is pinned to float to top */
-  pinned?: boolean;
-  /** ISO 8601 timestamp when pinned (for ordering pinned projects) */
-  pinnedAt?: string;
-  /** Icon color theme (hex, e.g., "#ff66ad") - needed for touch restore */
-  iconColor?: string;
-  /** Icon emoji name (e.g., "graduation-cap") */
-  iconEmoji?: string;
 }
 
 /**

@@ -49,7 +49,7 @@ export async function scrollPopupUntilExhausted(
 
   // Get initial count
   const initialCount = await countPopupProjects();
-  onProgress(`Starting popup scroll (${initialCount} projects visible)...`);
+  onProgress(`Scrolling to load all projects (${initialCount} visible so far)...`);
 
   if (initialCount === 0) {
     onProgress('No projects found in popup');
@@ -92,6 +92,10 @@ export async function scrollPopupUntilExhausted(
 
     if (newItems === 0) {
       stableIterations++;
+      // Show heartbeat every 3 stable iterations so user knows it's still working
+      if (stableIterations % 3 === 0) {
+        onProgress(`Still scrolling... ${currentCount} projects found (checking for more)`);
+      }
       // Extra aggressive scroll when stuck
       if (stableIterations > 3) {
         await page.mouse.wheel(0, 800);
@@ -105,7 +109,7 @@ export async function scrollPopupUntilExhausted(
     previousCount = currentCount;
   }
 
-  onProgress(`Popup scroll complete. Total: ${previousCount} (${scrollAttempts} scrolls)`);
+  onProgress(`Scroll complete: ${previousCount} projects found in DOM (this is the actual count, not an estimate)`);
   return previousCount;
 }
 
@@ -124,7 +128,7 @@ export async function scrollUntilExhausted(
   const maxScrollAttempts = 100;
 
   const initialCount = await countProjectItems(page);
-  onProgress(`Starting scroll enumeration (${initialCount} projects visible)...`);
+  onProgress(`Scrolling to load all projects (${initialCount} visible so far)...`);
 
   if (initialCount === 0) {
     onProgress('No projects found in sidebar');
@@ -145,6 +149,10 @@ export async function scrollUntilExhausted(
 
     if (newItems === 0) {
       stableIterations++;
+      // Show heartbeat every 2 stable iterations so user knows it's still working
+      if (stableIterations % 2 === 0) {
+        onProgress(`Still scrolling... ${currentCount} projects found (checking for more)`);
+      }
     } else {
       stableIterations = 0;
       onProgress(`Found ${currentCount} projects (+${newItems} new)`);
@@ -153,7 +161,7 @@ export async function scrollUntilExhausted(
     previousCount = currentCount;
   }
 
-  onProgress(`Scroll complete. Total projects found: ${previousCount}`);
+  onProgress(`Scroll complete: ${previousCount} projects found in DOM (this is the actual count, not an estimate)`);
   return previousCount;
 }
 

@@ -16,10 +16,6 @@ interface ProjectRow {
   last_confirmed_run_id: string | null;
   created_at: string;
   updated_at: string;
-  pinned: boolean;
-  pinned_at: string | null;
-  icon_color: string | null;
-  icon_emoji: string | null;
 }
 
 /**
@@ -360,10 +356,6 @@ export class SupabaseWriter implements StorageBackend {
       last_confirmed_at: project.lastConfirmedAt,
       run_id: this.currentRunId, // Will be preserved on upsert for existing projects
       last_confirmed_run_id: this.currentRunId, // Always updated to current run
-      pinned: project.pinned ?? false,
-      pinned_at: project.pinnedAt ?? null,
-      icon_color: project.iconColor ?? null,
-      icon_emoji: project.iconEmoji ?? null,
     };
   }
 
@@ -397,21 +389,6 @@ export class SupabaseWriter implements StorageBackend {
   }
 
   /**
-   * Gets only pinned projects from Supabase, sorted by pinnedAt
-   */
-  async getPinnedProjects(): Promise<ProjectRecord[]> {
-    const { data, error } = await this.client
-      .from(CONFIG.SUPABASE.TABLE_NAME)
-      .select('*')
-      .eq('pinned', true)
-      .order('pinned_at', { ascending: true });
-
-    if (error || !data) return [];
-
-    return data.map((row) => this.fromSupabaseRow(row as ProjectRow));
-  }
-
-  /**
    * Converts a Supabase row to ProjectRecord format
    */
   private fromSupabaseRow(row: ProjectRow): ProjectRecord {
@@ -420,10 +397,6 @@ export class SupabaseWriter implements StorageBackend {
       title: row.title,
       firstSeenAt: row.first_seen_at,
       lastConfirmedAt: row.last_confirmed_at,
-      pinned: row.pinned,
-      pinnedAt: row.pinned_at ?? undefined,
-      iconColor: row.icon_color ?? undefined,
-      iconEmoji: row.icon_emoji ?? undefined,
     };
   }
 

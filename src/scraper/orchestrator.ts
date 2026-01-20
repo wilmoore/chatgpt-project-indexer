@@ -16,7 +16,6 @@ import type { ProgressCallback, RunOptions, ProjectRecord, ScanResult } from '..
 import type { StorageBackend } from '../storage/types.js';
 import { logger, parseInterval, formatInterval } from '../utils/logger.js';
 import { CONFIG } from '../config/constants.js';
-import { createTouchMechanism, createTouchQueueProcessor, TouchQueueProcessor } from '../touch/index.js';
 import {
   loadNotificationConfig,
   createNotifier,
@@ -183,6 +182,11 @@ async function runSingleScan(
 ): Promise<ScanResult> {
   const currentProjectIds = new Set<string>();
 
+  // Progress callback that logs to show what's happening
+  const logProgress = (msg: string): void => {
+    logger.info(msg);
+  };
+
   // Helper to add project to all backends and track IDs
   const addProjectToAll = (project: ProjectRecord): void => {
     currentProjectIds.add(project.id);
@@ -192,30 +196,34 @@ async function runSingleScan(
   };
 
   // Navigate to ChatGPT (refresh the page)
+  logger.info('Navigating to ChatGPT...');
   await navigateToChatGPT(page);
   await page.waitForTimeout(2000);
 
   // Ensure authenticated
-  await ensureAuthenticated(page, () => {});
+  logger.info('Checking authentication...');
+  await ensureAuthenticated(page, logProgress);
 
   // Wait for sidebar
+  logger.info('Waiting for sidebar...');
   const sidebar = await waitForSidebar(page);
+  logger.info('Sidebar loaded');
 
   // Open the "See more" popup for Projects
-  const popup = await openSeeMorePopup(page, () => {});
+  const popup = await openSeeMorePopup(page, logProgress);
 
   let totalProjects = 0;
   let extracted = 0;
   let failed = 0;
 
   if (popup) {
-    totalProjects = await scrollPopupUntilExhausted(page, popup, () => {});
-    const result = await extractProjectsFromPopup(page, popup, addProjectToAll, () => {});
+    totalProjects = await scrollPopupUntilExhausted(page, popup, logProgress);
+    const result = await extractProjectsFromPopup(page, popup, addProjectToAll, logProgress);
     extracted = result.extracted;
     failed = result.failed;
   } else {
-    totalProjects = await scrollUntilExhausted(page, sidebar, () => {});
-    const result = await extractAllProjects(page, sidebar, addProjectToAll, () => {});
+    totalProjects = await scrollUntilExhausted(page, sidebar, logProgress);
+    const result = await extractAllProjects(page, sidebar, addProjectToAll, logProgress);
     extracted = result.extracted;
     failed = result.failed;
   }
@@ -237,7 +245,6 @@ async function runSingleScan(
 /**
  * Runs continuous enumeration in watch mode.
  * Scans at regular intervals and reports deltas.
- * Also processes touch queue requests from the API.
  */
 export async function runWatchMode(
   options: RunOptions,
@@ -267,21 +274,17 @@ export async function runWatchMode(
   let previousProjectIds = new Set<string>();
   let scanCount = 0;
 
-  // Touch queue processor for API-triggered touch operations
-  let queueProcessor: TouchQueueProcessor | null = null;
-  const touchMechanism = createTouchMechanism('icon_color');
-
   // Setup signal handlers
   const handleSignal = (signal: string) => {
     logger.info(`Received ${signal}, shutting down gracefully...`);
-    if (queueProcessor) {
-      queueProcessor.stopPolling();
-    }
     requestShutdown();
   };
 
   process.on('SIGTERM', () => handleSignal('SIGTERM'));
   process.on('SIGINT', () => handleSignal('SIGINT'));
+
+  // Track if we need headful mode due to auth failure
+  let forceHeadfulDueToAuth = false;
 
   // Helper to launch/relaunch browser
   const ensureBrowser = async (): Promise<Page> => {
@@ -305,9 +308,13 @@ export async function runWatchMode(
       }
     }
 
-    // Launch new browser
+    // Launch new browser - force headful if auth failed previously
+    const needsHeadful = options.headful || forceHeadfulDueToAuth;
+    if (forceHeadfulDueToAuth) {
+      logger.info('Relaunching in headful mode for re-authentication...');
+    }
     const result = await launchBrowser({
-      forceHeadful: options.headful,
+      forceHeadful: needsHeadful,
       onProgress: (msg) => logger.info(msg),
     });
     context = result.context;
@@ -331,32 +338,10 @@ export async function runWatchMode(
         // Ensure browser is available
         const activePage = await ensureBrowser();
 
-        // Pause touch queue during scan to avoid race condition with navigation
-        // (touch operations use page.evaluate which gets destroyed on navigation)
-        if (queueProcessor?.isPolling()) {
-          queueProcessor.stopPolling();
-        }
-
         // Start a new run for this scan
         await startRun(backends);
 
         const result = await runSingleScan(activePage, backends, previousProjectIds);
-
-        // Start/resume touch queue processor AFTER scan completes
-        // This ensures the page is stable and won't navigate during touch operations
-        if (!queueProcessor) {
-          queueProcessor = createTouchQueueProcessor();
-        }
-        if (!queueProcessor.isPolling()) {
-          queueProcessor.startPolling(activePage, touchMechanism, (result) => {
-            if (result.processed > 0) {
-              logger.info(
-                `Touch queue: processed ${result.processed} request(s) ` +
-                `(${result.succeeded} succeeded, ${result.failed} failed)`
-              );
-            }
-          });
-        }
 
         // Complete the run
         await completeRun(backends, { found: result.totalProjects, extracted: result.extracted });
@@ -374,6 +359,12 @@ export async function runWatchMode(
           );
         }
 
+        // Reset headful flag after successful scan - can go back to headless
+        if (forceHeadfulDueToAuth) {
+          forceHeadfulDueToAuth = false;
+          logger.info('Authentication restored. Future scans will use headless mode.');
+        }
+
         // Update tracking for next scan
         previousProjectIds = result.projectIds;
       } catch (error) {
@@ -381,11 +372,14 @@ export async function runWatchMode(
         logger.warn(`Scan #${scanCount} failed: ${message} - will retry in ${formatInterval(intervalMs)}`);
         await failRun(backends);
 
-        // Send notification for auth failures
-        if (message.includes('Authentication timeout')) {
+        // Handle auth failures - force headful mode on next attempt
+        if (message.includes('Authentication timeout') || message.includes('Login required')) {
+          forceHeadfulDueToAuth = true;
+          page = null; // Force browser relaunch
+
           const notifyResult = await notify(
             'auth_failure',
-            `ChatGPT Indexer: Auth expired. Please re-authenticate. Scan #${scanCount} failed.`
+            `ChatGPT Indexer: Auth expired. Browser will open for re-authentication on next scan.`
           );
 
           if (notifyResult.sent) {
@@ -404,10 +398,6 @@ export async function runWatchMode(
         // Mark page as dead if it's a browser error
         if (message.includes('Target page') || message.includes('browser has been closed')) {
           page = null;
-          // Stop queue processor since page is dead - will restart with new page
-          if (queueProcessor) {
-            queueProcessor.stopPolling();
-          }
         }
       }
 
@@ -420,10 +410,6 @@ export async function runWatchMode(
 
     logger.info('Watch mode stopped');
   } finally {
-    // Stop touch queue polling
-    if (queueProcessor) {
-      queueProcessor.stopPolling();
-    }
     await closeBackends(backends);
     if (context) {
       await closeBrowser(context);

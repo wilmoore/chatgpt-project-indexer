@@ -9,7 +9,7 @@ import { logger } from '../utils/logger.js';
  */
 export async function detectAuthState(page: Page): Promise<AuthState> {
   const url = page.url();
-  logger.debug(`Detecting auth state for URL: ${url}`);
+  logger.info(`Checking auth at URL: ${url}`);
 
   // Check for login page URL patterns
   for (const pattern of AUTH_URL_PATTERNS.LOGIN) {
@@ -29,9 +29,11 @@ export async function detectAuthState(page: Page): Promise<AuthState> {
     return AuthState.LOGIN_REQUIRED;
   }
 
-  logger.debug('URL is on ChatGPT domain, checking for sidebar...');
+  logger.info('On ChatGPT domain, waiting for sidebar (15s timeout)...');
 
   // Try to find authenticated UI indicators (sidebar)
+  // Use a longer timeout since headless mode can be slower
+  const sidebarTimeout = 15_000;
   try {
     for (const selector of SELECTORS.sidebar) {
       const element = page.locator(selector).first();
@@ -39,9 +41,9 @@ export async function detectAuthState(page: Page): Promise<AuthState> {
         logger.debug(`Trying sidebar selector: ${selector}`);
         await element.waitFor({
           state: 'visible',
-          timeout: CONFIG.TIMEOUTS.ELEMENT_WAIT,
+          timeout: sidebarTimeout,
         });
-        logger.debug(`Sidebar found with selector: ${selector}`);
+        logger.info(`Authenticated - sidebar found`);
         return AuthState.AUTHENTICATED;
       } catch {
         logger.debug(`Sidebar not found with selector: ${selector}`);
@@ -51,7 +53,11 @@ export async function detectAuthState(page: Page): Promise<AuthState> {
     // Sidebar not found
   }
 
-  logger.debug('Sidebar not found, checking for login indicators...');
+  // Log page title for debugging
+  const title = await page.title();
+  logger.info(`Page title: "${title}"`);
+
+  logger.info('Sidebar not found, checking for login indicators...');
 
   // Check for login indicators on the page
   for (const selector of SELECTORS.loginIndicators) {
@@ -60,7 +66,7 @@ export async function detectAuthState(page: Page): Promise<AuthState> {
       const element = page.locator(selector).first();
       const visible = await element.isVisible();
       if (visible) {
-        logger.debug(`Login indicator visible: ${selector}`);
+        logger.info(`Login indicator found: ${selector}`);
         return AuthState.LOGIN_REQUIRED;
       }
     } catch {
@@ -68,7 +74,7 @@ export async function detectAuthState(page: Page): Promise<AuthState> {
     }
   }
 
-  logger.debug('Auth state unknown - no clear indicators found');
+  logger.info('Auth state unclear - no sidebar or login indicators found');
   return AuthState.UNKNOWN;
 }
 

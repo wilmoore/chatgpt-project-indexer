@@ -1,6 +1,18 @@
 {
-  "lastSequence": 37,
+  "lastSequence": 38,
   "items": [
+    {
+      "id": 38,
+      "title": "Add verbose debug mode for development iteration",
+      "description": "Add detailed logging output when running with -v/--verbose flag. Shows scrolling progress, project extraction details, selector attempts, and timing information. Leverages existing logger infrastructure with DEBUG level. Helps developers understand what the indexer is doing during active iteration.",
+      "category": "feature",
+      "severity": "medium",
+      "fingerprint": "feature|38|verbose-debug-mode",
+      "source": "/pro:feature",
+      "sourceBranch": "feat/add-verbose-debug-mode",
+      "createdAt": "2026-01-19T22:50:00.000Z",
+      "status": "in-progress"
+    },
     {
       "id": 37,
       "title": "Add npm helper scripts for authentication commands",

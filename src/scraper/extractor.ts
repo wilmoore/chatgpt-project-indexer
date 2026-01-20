@@ -18,7 +18,7 @@ export async function extractProjectsFromPopup(
   const items = popup.locator('a[href$="/project"]');
   const count = await items.count();
 
-  onProgress(`Extracting data from ${count} projects in popup...`);
+  onProgress(`Extracting project data (0/${count} processed)...`);
 
   let extracted = 0;
   let failed = 0;
@@ -68,8 +68,10 @@ export async function extractProjectsFromPopup(
       onProject(project);
       extracted++;
 
-      if (extracted % 10 === 0) {
-        onProgress(`Extracted ${extracted}/${count} projects`);
+      // Show progress every 25 items or at key milestones
+      if (extracted % 25 === 0 || extracted === count) {
+        const pct = Math.round((extracted / count) * 100);
+        onProgress(`Extracted ${extracted}/${count} projects (${pct}%)`);
       }
     } catch (error) {
       failed++;
@@ -78,7 +80,7 @@ export async function extractProjectsFromPopup(
     }
   }
 
-  onProgress(`Extraction complete: ${extracted} extracted, ${failed} failed`);
+  onProgress(`Extraction complete: ${extracted} successful, ${failed} failed`);
   return { extracted, failed };
 }
 
@@ -217,7 +219,7 @@ export async function extractAllProjects(
   const items = await getProjectItems(page);
   const count = await items.count();
 
-  onProgress(`Extracting data from ${count} projects...`);
+  onProgress(`Extracting project data (0/${count} processed)...`);
 
   let extracted = 0;
   let failed = 0;
@@ -230,8 +232,10 @@ export async function extractAllProjects(
       onProject(project);
       extracted++;
 
-      if (extracted % 10 === 0) {
-        onProgress(`Extracted ${extracted}/${count} projects`);
+      // Show progress every 25 items or at key milestones
+      if (extracted % 25 === 0 || extracted === count) {
+        const pct = Math.round((extracted / count) * 100);
+        onProgress(`Extracted ${extracted}/${count} projects (${pct}%)`);
       }
     } catch (error) {
       failed++;
@@ -243,7 +247,7 @@ export async function extractAllProjects(
     await page.waitForTimeout(CONFIG.DELAYS.BETWEEN_HOVERS);
   }
 
-  onProgress(`Extraction complete: ${extracted} extracted, ${failed} failed`);
+  onProgress(`Extraction complete: ${extracted} successful, ${failed} failed`);
 
   return { extracted, failed };
 }

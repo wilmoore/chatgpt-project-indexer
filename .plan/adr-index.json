@@ -1,5 +1,5 @@
 {
-  "lastSequence": 14,
+  "lastSequence": 15,
   "entries": [
     {
       "branch": "feat/mvp-chatgpt-project-indexer",
@@ -58,6 +58,12 @@
       "branch": "fix/authentication-timeout-silent-failures",
       "adrs": [
         "014-pluggable-notification-system.md"
+      ]
+    },
+    {
+      "branch": "feat/add-verbose-debug-mode",
+      "adrs": [
+        "015-remove-pin-touch-functionality.md"
       ]
     }
   ]
