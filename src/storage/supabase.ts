@@ -81,12 +81,75 @@ export class SupabaseWriter implements StorageBackend {
       }
 
       console.log(`Supabase: Loaded ${this.existingIds.size} existing projects`);
+
+      // Recovery sync: check local JSON for missing projects
+      await this.syncFromLocalStorage(CONFIG.DEFAULT_OUTPUT_FILE);
     } catch (error) {
       console.error('Supabase: Failed to initialize:', error);
       throw error;
     }
 
     this.initialized = true;
+  }
+
+  /**
+   * Syncs missing projects from local JSON storage to Supabase.
+   * Recovers data lost from failed runs that didn't flush.
+   */
+  private async syncFromLocalStorage(localJsonPath: string): Promise<number> {
+    try {
+      const fs = await import('fs/promises');
+      const pathModule = await import('path');
+
+      const absolutePath = pathModule.default.resolve(localJsonPath);
+      const data = await fs.default.readFile(absolutePath, 'utf-8');
+      const storage = JSON.parse(data);
+
+      if (!storage?.projects || !Array.isArray(storage.projects)) {
+        return 0;
+      }
+
+      const missingProjects = storage.projects.filter(
+        (p: { id: string }) => !this.existingIds.has(p.id)
+      );
+
+      if (missingProjects.length === 0) {
+        return 0;
+      }
+
+      console.log(`Supabase: Found ${missingProjects.length} projects in local JSON missing from Supabase`);
+
+      const rows = missingProjects.map((p: ProjectRecord) => ({
+        id: p.id,
+        title: p.title,
+        first_seen_at: p.firstSeenAt,
+        last_confirmed_at: p.lastConfirmedAt,
+        run_id: null,
+        last_confirmed_run_id: null,
+      }));
+
+      const { error } = await this.client
+        .from(CONFIG.SUPABASE.TABLE_NAME)
+        .upsert(rows, { onConflict: 'id', ignoreDuplicates: false });
+
+      if (error) {
+        console.error('Supabase: Failed to sync missing projects:', error);
+        return 0;
+      }
+
+      for (const p of missingProjects) {
+        this.existingIds.add(p.id);
+      }
+
+      console.log(`Supabase: Recovery sync complete (${missingProjects.length} projects recovered)`);
+      return missingProjects.length;
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+        return 0; // No local file - nothing to sync
+      }
+      console.warn('Supabase: Could not sync from local storage:', error);
+      return 0;
+    }
   }
 
   /**
@@ -178,11 +241,24 @@ export class SupabaseWriter implements StorageBackend {
 
   /**
    * Marks the current run as failed.
+   * Attempts to flush any buffered data before failing to preserve progress.
    * Failed runs do NOT trigger cleanup, preserving all existing data.
    */
   async failRun(): Promise<void> {
     if (!this.currentRunId) {
       return;
+    }
+
+    // Attempt to flush any buffered projects before failing
+    const bufferedCount = this.buffer.size;
+    if (bufferedCount > 0) {
+      console.log(`Supabase: Flushing ${bufferedCount} buffered projects before marking run as failed`);
+      try {
+        await this.flush();
+      } catch (error) {
+        // Log but continue - we still want to mark the run as failed
+        console.warn('Supabase: Flush before fail encountered error:', error);
+      }
     }
 
     await this.client
