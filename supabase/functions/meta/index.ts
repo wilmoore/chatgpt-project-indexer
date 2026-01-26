@@ -14,7 +14,7 @@ Deno.serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     const { count } = await supabase
-      .from("projects")
+      .from("current_projects")
       .select("*", { count: "exact", head: true });
 
     return new Response(

@@ -1,6 +1,54 @@
 {
-  "lastSequence": 38,
+  "lastSequence": 42,
   "items": [
+    {
+      "id": 42,
+      "title": "Edge functions query legacy projects table instead of current_projects view",
+      "description": "Raycast extension getting 400 errors when fetching projects via /rest/v1/projects. Root cause: Schema changed to snapshot-based runs (migration 20260121000000) - data now in run_projects table exposed via current_projects view, but edge functions still query legacy projects table. PostgREST also requires API key which is poor UX. Fix: Update edge functions to query current_projects view. Raycast should use /functions/v1/projects endpoint (no API key required).",
+      "category": "bug",
+      "severity": "high",
+      "fingerprint": "bug|42|edge-functions-query-legacy-table",
+      "source": "/pro:bug",
+      "sourceBranch": "fix/raycast-api-400-error",
+      "createdAt": "2026-01-22T12:00:00.000Z",
+      "status": "in-progress"
+    },
+    {
+      "id": 41,
+      "title": "Deleted projects persist in storage after deletion from ChatGPT",
+      "description": "Projects deleted from ChatGPT are never removed from storage. The system is 'additive only' - it upserts projects but never deletes them. After consolidating duplicates in ChatGPT, old entries remain in the project list. P0 bug - defeats the core purpose of the indexer. Fix: After a successful scan that enumerates all projects, compare seen IDs against stored IDs and remove any not seen.",
+      "category": "bug",
+      "severity": "critical",
+      "fingerprint": "bug|41|stale-projects-persist",
+      "source": "/pro:bug",
+      "sourceBranch": "fix/auth-completion-delay",
+      "createdAt": "2026-01-21T00:30:00.000Z",
+      "status": "in-progress"
+    },
+    {
+      "id": 40,
+      "title": "Auth detection takes 30-60+ seconds when already logged in",
+      "description": "The `auth login` command takes 30-60+ seconds to complete even when the user is already authenticated. Root cause: Sequential selector checking with 15s timeout per selector (4 selectors = 60s worst case). The actual matching selector is the 3rd one. Fix: Use Promise.race() for parallel selector checking, reorder selectors by match probability, reduce timeout to 3s. Result: Detection now takes ~1.3s instead of 30-60s.",
+      "category": "bug",
+      "severity": "high",
+      "fingerprint": "bug|40|auth-completion-delay",
+      "source": "/pro:bug",
+      "sourceBranch": "fix/auth-completion-delay",
+      "createdAt": "2026-01-20T22:30:00.000Z",
+      "status": "in-progress"
+    },
+    {
+      "id": 39,
+      "title": "Failed runs don't sync projects to Supabase - data loss",
+      "description": "When runs fail (auth timeout, browser crash, network error), projects extracted during that run are saved to local JSON but not synced to Supabase. Root cause: Local JSON writer flushes immediately during extraction, but Supabase writer buffers and flushes periodically. If the run fails before a flush, the buffer is lost. Evidence: 524 of 703 runs (75%) have failed status. 10 projects exist in local JSON but not in Supabase. Steps to reproduce: 1) Start indexer in watch mode, 2) Let it extract some projects, 3) Kill the process before flush interval (5s), 4) Compare local JSON count vs Supabase count. Expected: All extracted projects in Supabase. Actual: Projects missing from Supabase.",
+      "category": "bug",
+      "severity": "high",
+      "fingerprint": "bug|39|failed-runs-data-loss",
+      "source": "/pro:bug",
+      "sourceBranch": "fix/duplicate-projects-collapsed-to-one",
+      "createdAt": "2026-01-20T13:30:00.000Z",
+      "status": "in-progress"
+    },
     {
       "id": 38,
       "title": "Add verbose debug mode for development iteration",
