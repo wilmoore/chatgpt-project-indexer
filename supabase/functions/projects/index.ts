@@ -14,8 +14,8 @@ Deno.serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     const { data: projects, error } = await supabase
-      .from("projects")
-      .select("id, title, url")
+      .from("current_projects")
+      .select("id, title")
       .order("title", { ascending: true });
 
     if (error) throw error;
@@ -24,7 +24,7 @@ Deno.serve(async (req) => {
     const mappedProjects = (projects ?? []).map((p) => ({
       id: p.id,
       name: p.title,
-      open_url: p.url,
+      open_url: `https://chatgpt.com/g/${p.id}`,
     }));
 
     return new Response(JSON.stringify(mappedProjects), {
