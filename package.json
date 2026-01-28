@@ -1,6 +1,6 @@
 {
   "name": "chatgpt-project-indexer",
-  "version": "1.7.2",
+  "version": "1.7.3",
   "description": "Enumerate all ChatGPT Projects via browser automation",
   "type": "module",
   "main": "dist/index.js",
@@ -18,7 +18,10 @@
     "test:coverage": "vitest run --coverage",
     "auth:login": "tsx src/index.ts auth login",
     "auth:status": "tsx src/index.ts auth status",
-    "auth:export": "tsx src/index.ts auth export"
+    "auth:export": "tsx src/index.ts auth export",
+    "supabase:start": "supabase start",
+    "supabase:stop": "supabase stop",
+    "supabase:restart": "supabase stop && supabase start"
   },
   "keywords": [
     "chatgpt",

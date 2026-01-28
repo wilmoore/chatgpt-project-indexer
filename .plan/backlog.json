@@ -1,6 +1,20 @@
 {
-  "lastSequence": 42,
+  "lastSequence": 43,
   "items": [
+    {
+      "id": 43,
+      "title": "Edge function 401 Unauthorized - missing config.toml with verify_jwt = false",
+      "description": "Raycast extension getting HTTP 401 Unauthorized when calling edge functions (/functions/v1/projects, /functions/v1/meta, /functions/v1/docs). Root cause: No supabase/config.toml existed, so Supabase defaulted to verify_jwt = true for all edge functions. The Raycast extension sends no Authorization header because these are public read-only endpoints (per ADR-008). Fix: Created config.toml via supabase init and added [functions.<name>] verify_jwt = false for all three functions. Restarted local Supabase to apply.",
+      "category": "bug",
+      "severity": "high",
+      "fingerprint": "bug|43|edge-function-401-unauthorized",
+      "source": "manual",
+      "sourceBranch": "fix/edge-function-401-unauthorized",
+      "createdAt": "2026-01-27T00:00:00.000Z",
+      "status": "resolved",
+      "resolvedAt": "2026-01-27T00:00:00.000Z",
+      "resolvedBranch": "fix/edge-function-401-unauthorized"
+    },
     {
       "id": 42,
       "title": "Edge functions query legacy projects table instead of current_projects view",
@@ -11,7 +25,9 @@
       "source": "/pro:bug",
       "sourceBranch": "fix/raycast-api-400-error",
       "createdAt": "2026-01-22T12:00:00.000Z",
-      "status": "in-progress"
+      "status": "resolved",
+      "resolvedAt": "2026-01-26T00:00:00.000Z",
+      "resolvedBranch": "fix/raycast-api-400-error"
     },
     {
       "id": 41,

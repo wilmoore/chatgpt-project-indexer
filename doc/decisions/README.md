@@ -34,3 +34,4 @@ We use the [Michael Nygard format](https://cognitect.com/blog/2011/11/15/documen
 - [014. Pluggable Notification System](014-pluggable-notification-system.md)
 - [015. Remove Pin/Touch Functionality](015-remove-pin-touch-functionality.md) (supersedes 009, 012)
 - [016. Defensive Data Recovery on Failure](016-defensive-data-recovery-on-failure.md)
+- [017. Config.toml for Edge Function JWT Bypass](017-config-toml-for-edge-function-jwt-bypass.md)
