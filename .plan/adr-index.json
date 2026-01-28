@@ -1,5 +1,5 @@
 {
-  "lastSequence": 16,
+  "lastSequence": 17,
   "entries": [
     {
       "branch": "feat/mvp-chatgpt-project-indexer",
@@ -70,6 +70,12 @@
       "branch": "fix/duplicate-projects-collapsed-to-one",
       "adrs": [
         "016-defensive-data-recovery-on-failure.md"
+      ]
+    },
+    {
+      "branch": "fix/edge-function-401-unauthorized",
+      "adrs": [
+        "017-config-toml-for-edge-function-jwt-bypass.md"
       ]
     }
   ]
